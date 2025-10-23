@@ -1,0 +1,2496 @@
+/* NT Lazy PageSpeed Styles - Material Design 3 */
+
+/* MD3 System Design Tokens - Use f1f1f1 as primary */
+:root {
+    /* Font Stack */
+    --app-font-stack: '.SF NS', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans CJK TC', 'Segoe UI', sans-serif;
+
+    /* Primary colors - f1f1f1 white theme */
+    --md-sys-color-primary: #f1f1f1;
+    --md-sys-color-on-primary: #0a0a0a;
+    --md-sys-color-primary-container: #f1f1f1;
+    --md-sys-color-on-primary-container: #0a0a0a;
+
+    /* Surface colors for dark theme */
+    --md-sys-color-surface: #0a0a0a;
+    --md-sys-color-surface-container: #1a1a1a;
+    --md-sys-color-surface-container-high: #1a1a1a;
+    --md-sys-color-surface-container-highest: #2a2a2a;
+    --md-sys-color-on-surface: #f1f1f1;
+    --md-sys-color-on-surface-variant: #a1a1aa;
+
+    /* Outline colors */
+    --md-sys-color-outline: #404040;
+    --md-sys-color-outline-variant: #2a2a2a;
+    --md-sys-color-error: #ff5449;
+    --md-sys-color-on-error: #ffffff;
+    --md-sys-color-error-container: #ff8a80;
+
+    /* Force dark theme */
+    color-scheme: dark;
+}
+
+/* Custom utility classes */
+.text-gray-100 {
+    color: var(--md-sys-color-primary);
+}
+
+.bg-surface {
+    background-color: var(--md-sys-color-surface);
+}
+
+.stats-card,
+.preview-card {
+    background-color: var(--md-sys-color-surface-container);
+    border-radius: 24px;
+}
+
+.table-fixed {
+    table-layout: fixed;
+}
+
+.fixed-bottom-container {
+    background-color: var(--md-sys-color-surface);
+}
+
+/* Execute Button States */
+.execute-btn {
+    display: inline-flex;
+}
+
+.execute-btn-outlined,
+.execute-btn-text {
+    display: none;
+}
+
+/* Amount Value Color */
+.amount-value {
+    color: var(--md-sys-color-primary);
+}
+
+/* Table Styles */
+.table-header {
+    font-size: 12px;
+    color: rgba(114, 114, 114, 0.78);
+    font-weight: normal;
+}
+
+.table-cell {
+    font-size: 14px;
+}
+
+/* URL Cell - prevent cell overflow */
+.url-cell {
+    max-width: 0;
+    overflow: hidden;
+}
+
+/* Error Message Styles */
+.url-cell .error-message {
+    display: block;
+    clear: both;
+    margin-top: 8px;
+}
+
+.url-cell .relative {
+    min-height: 20px;
+}
+
+/* URL Cell - independent scrolling for URL text only */
+.url-scroll-container {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.url-scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.url-text {
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Table Status Cell Icons */
+.status-cell md-circular-progress {
+    --md-circular-progress-size: 20px;
+}
+
+/* Score Circles */
+.score-circles {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.score-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.score-label {
+    font-size: 10px;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Large Score Circles for Report Dialog */
+.score-circles-large {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 16px 0;
+}
+
+.score-item-large {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.score-circle-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface);
+}
+
+.score-circle-large[data-level="good"] {
+    border-color: #4ade80;
+}
+
+.score-circle-large[data-level="average"] {
+    border-color: #fb923c;
+}
+
+.score-circle-large[data-level="poor"] {
+    border-color: #f87171;
+}
+
+.score-circle-large[data-level="none"] {
+    border-color: #3f3f46;
+}
+
+.score-label-large {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface-variant);
+    text-align: center;
+}
+
+/* Responsive layout for mobile */
+@media (max-width: 640px) {
+    /* Report Dialog Tabs - wrap on mobile */
+    #reportDialog md-tabs {
+        flex-wrap: wrap;
+    }
+
+    /* Core Web Vitals metrics - one per row on mobile */
+    .crux-metrics-row,
+    .crux-metrics-row.crux-three-cols {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Score circles - 2x2 grid on mobile */
+    .score-circles-large {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+    }
+
+    .score-circle-large {
+        width: 64px;
+        height: 64px;
+        font-size: 20px;
+    }
+
+    .score-label-large {
+        font-size: 11px;
+    }
+}
+
+/* Results Table Row Styles - Unified CSS Management */
+#resultsBody tr {
+    transition: background-color 0.2s ease;
+}
+
+#resultsBody tr:hover {
+    background-color: rgba(39, 39, 42, 0.3);
+}
+
+#resultsBody tr:not(:last-child) {
+    border-bottom: 1px solid rgb(39, 39, 42);
+}
+
+/* Empty state styles */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #71717a;
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #a1a1aa;
+}
+
+.empty-state-description {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* San Francisco Font for Numbers */
+.sf-numbers {
+    font-feature-settings: 'tnum';
+}
+
+/* Gradient Text Support */
+.bg-gradient-to-r {
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%);
+}
+
+.bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.text-transparent {
+    color: transparent;
+}
+
+/* Global SF Font and Scrolling with Chinese Font Support */
+html,
+body {
+    font-family: var(--app-font-stack);
+    overflow-x: hidden;
+}
+
+body {
+    height: auto;
+    /* Remove min-height: 100vh to avoid forced minimum height */
+    overflow-y: auto;
+}
+
+/* Simplest scroll prevention: lock body only */
+body.dialog-open,
+html:has(body.dialog-open) {
+    overflow: hidden !important;
+}
+
+/* Filter Tabs */
+/* Filter Tabs */
+md-text-button.filter-tab {
+    --md-text-button-label-text-color: #71717a;
+}
+
+md-text-button.filter-tab.active {
+    --md-text-button-label-text-color: var(--md-sys-color-primary);
+}
+
+md-text-button.filter-tab:hover {
+    --md-text-button-label-text-color: var(--md-sys-color-primary);
+}
+
+/* Split Button */
+.split-button {
+    display: flex;
+    gap: 2px;
+}
+
+.split-button md-filled-tonal-button,
+.share-buttons md-filled-tonal-button {
+    --md-filled-tonal-button-container-color: #3f3f46;
+    --md-filled-tonal-button-label-text-color: var(--md-sys-color-on-surface);
+    --md-filled-tonal-button-icon-color: var(--md-sys-color-primary);
+    --md-filled-tonal-button-hover-label-text-color: var(--md-sys-color-on-surface);
+    --md-filled-tonal-button-hover-icon-color: var(--md-sys-color-primary);
+    --md-filled-tonal-button-focus-label-text-color: var(--md-sys-color-on-surface);
+    --md-filled-tonal-button-focus-icon-color: var(--md-sys-color-primary);
+    --md-filled-tonal-button-pressed-label-text-color: var(--md-sys-color-on-surface);
+    --md-filled-tonal-button-pressed-icon-color: var(--md-sys-color-primary);
+}
+
+.split-button .split-btn-main {
+    border-radius: 20px 5px 5px 20px;
+}
+
+.split-button .split-btn-middle {
+    border-radius: 5px;
+}
+
+.split-button .split-btn-dropdown {
+    border-radius: 5px 20px 20px 5px;
+    --md-filled-tonal-button-leading-space: 16px;
+    --md-filled-tonal-button-trailing-space: 8px;
+    min-width: 48px;
+    width: 48px;
+}
+
+.split-button .split-btn-dropdown md-icon {
+    margin-left: 10px;
+}
+
+.split-button md-filled-tonal-button md-icon,
+.share-buttons md-filled-tonal-button md-icon,
+.share-buttons md-filled-tonal-button svg {
+    color: var(--md-sys-color-primary);
+}
+
+/* Actions Menu - Same style as Platform Menu */
+.actions-menu {
+    --md-menu-container-color: var(--md-sys-color-surface-container-highest);
+    --md-menu-container-elevation: 3;
+    --md-menu-container-shape: 24px;
+    min-width: 120px;
+}
+
+.actions-menu md-menu-item {
+    --md-menu-item-label-text-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-opacity: 0.08;
+}
+
+/* Hover White Effect */
+.hover-white:hover {
+    color: var(--md-sys-color-primary) !important;
+}
+
+/* Table Row Hover Animation */
+.fade-text {
+    transition: opacity 150ms ease-out;
+}
+
+.fade-actions {
+    transition: opacity 150ms ease-out;
+}
+
+.group:hover .fade-text {
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+}
+
+.group:hover .fade-actions {
+    opacity: 1 !important;
+    transition: opacity 400ms ease-out 200ms;
+}
+
+/* Disable hover effect for analyzing rows */
+.group.analyzing:hover .fade-text {
+    opacity: 1 !important;
+}
+
+.group.analyzing:hover .fade-actions {
+    opacity: 0 !important;
+}
+
+/* Carrier Action Container */
+.carrier-action-container {
+    font-size: 12px;
+}
+
+/* Carrier Info */
+.carrier-info {
+    font-size: 12px;
+    color: rgb(144, 144, 144);
+}
+
+/* Test Mode Button - Default (Desktop) */
+.test-mode-text-short {
+    display: none;
+}
+
+/* Mobile Table Styles - Vertical Layout */
+@media (max-width: 640px) {
+
+    /* Score cards - 2x2 grid on mobile */
+    .scores-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    /* Core Web Vitals header - wrap on mobile */
+    .crux-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* Hide expand toggle on mobile */
+    .crux-expand-toggle {
+        display: none !important;
+    }
+
+    /* Hide split-button on mobile */
+    .split-button {
+        display: none;
+    }
+
+    /* Show mobile actions on mobile */
+    .mobile-actions {
+        display: flex !important;
+    }
+
+    /* Invoice Header Layout - Mobile */
+    .invoice-header-container>div {
+        width: 100%;
+    }
+
+    .invoice-title {
+        order: 1;
+        width: auto;
+    }
+
+    .mobile-actions {
+        order: 2;
+        width: auto;
+    }
+
+    .header-actions {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Only show filter tabs on mobile */
+    .header-actions .split-button {
+        display: none;
+    }
+
+    /* Filter tabs - centered and distributed on mobile */
+    .filter-tabs-row {
+        width: 100%;
+        justify-content: space-around;
+    }
+
+    /* Dialog fields - force 1 column on mobile */
+    #editDialog .grid.grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Hide "Pages" text on mobile */
+    .hide-on-mobile {
+        display: none;
+    }
+
+    /* Hide table header */
+    #invoiceTable thead {
+        display: none;
+    }
+
+    /* Center and constrain tbody width */
+    #invoiceTableBody {
+        display: block;
+        width: 96%;
+        margin: 0 auto;
+    }
+
+    /* Make each row a card-like block */
+    #invoiceTableBody tr {
+        display: block;
+        padding: 10px 16px;
+        border-bottom: 1px solid rgb(39, 39, 42);
+    }
+
+    #invoiceTableBody tr:first-child {
+        border-top: 1px solid rgb(39, 39, 42);
+    }
+
+    /* Stack table cells vertically */
+    #invoiceTableBody td {
+        display: flex;
+        align-items: center;
+        padding: 6px 0;
+        text-align: left !important;
+        border: none;
+    }
+
+    /* Show label before content */
+    #invoiceTableBody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: rgb(161, 161, 170);
+        font-size: 14px;
+        margin-right: 12px;
+        flex-shrink: 0;
+        min-width: 70px;
+    }
+
+    /* Type and Buyer cells - grid layout for vertical stacking */
+    #invoiceTableBody td[data-label="Type"],
+    #invoiceTableBody td[data-label="Buyer"] {
+        display: grid;
+        grid-template-columns: 70px 1fr;
+        column-gap: 12px;
+        row-gap: 2px;
+        align-items: start;
+    }
+
+    #invoiceTableBody td[data-label="Type"]::before,
+    #invoiceTableBody td[data-label="Buyer"]::before {
+        margin-right: 0;
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    #invoiceTableBody td[data-label="Type"]>*,
+    #invoiceTableBody td[data-label="Buyer"]>* {
+        grid-column: 2;
+    }
+
+    /* Always show scores and action buttons on mobile */
+    .fade-text {
+        opacity: 1 !important;
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .fade-actions {
+        opacity: 1 !important;
+        position: relative !important;
+        margin-top: 16px;
+        padding-top: 16px;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    /* Mobile-only gradient divider for action buttons */
+    .fade-actions::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: var(--gradient-divider);
+    }
+
+    /* Reduce font size and spacing on mobile */
+    .fade-text > div,
+    .fade-actions > div {
+        font-size: 12px !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* Remove space-x spacing on mobile */
+    .fade-text.space-x-3 > *,
+    .fade-actions.space-x-3 > * {
+        margin-left: 0 !important;
+    }
+
+    .fade-text > div .material-symbols-outlined,
+    .fade-actions > div .material-symbols-outlined {
+        font-size: 14px !important;
+    }
+
+    /* Make buttons look clickable on mobile - MD3 style */
+    .fade-actions > div {
+        padding: 10px 16px;
+        border-radius: 20px;
+        background-color: rgba(63, 63, 70, 0.3);
+        transition: background-color 0.2s;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .fade-actions > div:active {
+        background-color: rgba(63, 63, 70, 0.6);
+    }
+
+    /* Disable hover effect on mobile */
+    .group:hover .fade-text {
+        opacity: 1 !important;
+    }
+
+    .group:hover .fade-actions {
+        opacity: 1 !important;
+    }
+
+    /* Bottom buttons - hide icons on mobile */
+    .platform-btn md-icon,
+    .test-mode-btn md-icon {
+        display: none;
+    }
+
+    /* Test Mode button - show short text on mobile */
+    .test-mode-text-full {
+        display: none;
+    }
+
+    .test-mode-text-short {
+        display: inline;
+    }
+
+}
+
+
+/* Layout - Fixed to allow scrolling */
+html,
+body {
+    height: auto;
+    min-height: 100%;
+}
+
+body {
+    /* Remove flex layout that interferes with scroll */
+    display: block;
+}
+
+/* Custom Gradient Backgrounds */
+.gradient-bg {
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%);
+}
+
+.gradient-btn {
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.gradient-btn span {
+    position: relative;
+    z-index: 1;
+}
+
+.gradient-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #e5e5e5 0%, #d1d5db 100%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.gradient-btn:hover::before {
+    opacity: 1;
+}
+
+/* MD3 Component Customizations */
+md-outlined-text-field {
+    --md-outlined-text-field-outline-color: #e2e8f0;
+    --md-outlined-text-field-focus-outline-color: var(--md-sys-color-primary);
+    --md-outlined-text-field-label-text-color: #64748b;
+    --md-outlined-text-field-container-color: transparent;
+    --md-outlined-text-field-hover-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-outlined-text-field-focus-label-text-color: var(--md-sys-color-primary);
+    --md-outlined-text-field-error-label-text-color: var(--md-sys-color-error);
+}
+
+md-filled-button.gradient-btn {
+    --md-filled-button-container-color: var(--md-sys-color-primary);
+    --md-filled-button-hover-container-color: #e5e5e5;
+    --md-filled-button-pressed-container-color: #d1d5db;
+}
+
+md-text-button {
+    --md-text-button-label-text-size: 14px;
+    --md-text-button-container-height: 32px;
+}
+
+/* Icon size override */
+md-icon-button {
+    --md-icon-button-icon-size: 24px;
+}
+
+md-linear-progress {
+    --md-linear-progress-active-indicator-color: var(--md-sys-color-primary);
+    --md-linear-progress-track-color: #334155;
+    border-radius: 4px;
+}
+
+/* Custom Input Field - No Border Ever */
+.custom-input {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 8px 12px;
+    color: var(--md-sys-color-on-surface);
+    font-size: 14px;
+    outline: none;
+    height: 40px;
+}
+
+.custom-input:focus {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.custom-input::placeholder {
+    color: #71717a;
+}
+
+/* Input Container - border handled by Tailwind class */
+.input-container {
+    background-color: var(--md-sys-color-surface-container);
+    border-radius: 24px;
+    position: relative;
+    transition: filter 0.3s ease;
+    /* Keep transition for blur effect only */
+}
+
+#fetchProgress {
+    position: absolute;
+    top: 0;
+    left: 25px;
+    right: 25px;
+    display: none;
+}
+
+.preview-card {
+    position: relative;
+}
+
+#tableProgress {
+    position: absolute;
+    top: 0;
+    left: 25px;
+    right: 25px;
+    display: none;
+}
+
+/* Chat-style Data Source Input */
+.data-input {
+    --md-outlined-text-field-outline-color: #4b5563;
+    --md-outlined-text-field-focus-outline-color: var(--md-sys-color-primary);
+    --md-outlined-text-field-label-text-color: #9ca3af;
+    --md-outlined-text-field-container-color: transparent;
+    --md-outlined-text-field-supporting-text-color: #6b7280;
+}
+
+.data-input md-outlined-text-field {
+    --md-sys-color-on-surface: #f9fafb;
+    --md-sys-color-on-surface-variant: #9ca3af;
+}
+
+/* MD3 Icon Button Styles */
+
+
+/* MD3 Filled Icon Button for Execute Button */
+md-filled-icon-button.execute-btn {
+    --md-filled-icon-button-container-color: transparent !important;
+    --md-filled-icon-button-icon-color: #0a0a0a !important;
+    --md-filled-icon-button-container-width: 40px !important;
+    --md-filled-icon-button-container-height: 40px !important;
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%) !important;
+    color: #0a0a0a;
+    border-radius: 50% !important;
+}
+
+md-filled-icon-button.execute-btn.disabled {
+    --md-filled-icon-button-icon-color: #4b5563;
+    background: transparent;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+md-filled-icon-button.execute-btn.processing {
+    --md-filled-icon-button-icon-color: #0a0a0a;
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%);
+}
+
+/* Text button for execute */
+md-filled-button.execute-btn-text {
+    --md-filled-button-container-color: transparent !important;
+    --md-filled-button-label-text-color: #0a0a0a !important;
+    --md-filled-button-container-height: 40px !important;
+    background: linear-gradient(135deg, #f1f1f1 0%, #e5e5e5 100%) !important;
+    color: #0a0a0a;
+    border-radius: 20px !important;
+    min-width: 60px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.1px !important;
+}
+
+md-filled-button.execute-btn-text:disabled,
+md-filled-button.execute-btn-text[disabled] {
+    --md-filled-button-label-text-color: #4b5563;
+    background: transparent !important;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Stop/Pause Button with white background */
+md-filled-icon-button.execute-btn-outlined {
+    --md-filled-icon-button-container-color: var(--md-sys-color-primary);
+}
+
+/* Void Button */
+.void-btn:hover {
+    --md-text-button-label-text-color: var(--md-sys-color-error) !important;
+}
+
+/* Material Design 3 Shadows */
+.md-shadow-1 {
+    box-shadow:
+        0px 1px 2px rgba(0, 0, 0, 0.3),
+        0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+.md-shadow-2 {
+    box-shadow:
+        0px 1px 2px rgba(0, 0, 0, 0.3),
+        0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+}
+
+.md-shadow-3 {
+    box-shadow:
+        0px 1px 3px rgba(0, 0, 0, 0.3),
+        0px 4px 8px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Progress Bar Animation */
+@keyframes progressPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.progress-pulse {
+    animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+/* Status Badges */
+.status-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.status-error {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.status-warning {
+    background-color: #fefce8;
+    color: #a16207;
+    border-color: #fef08a;
+}
+
+/* Card Hover Effects */
+.card-hover {
+    transition: all 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0px 2px 4px rgba(0, 0, 0, 0.3),
+        0px 4px 12px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading Spinner */
+.spinner {
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid var(--md-sys-color-primary);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 640px) {
+    .flex-mobile-col {
+        flex-direction: column;
+    }
+
+    .space-mobile-y>*+* {
+        margin-top: 0.75rem;
+        margin-left: 0;
+    }
+
+    .w-mobile-full {
+        width: 100%;
+    }
+}
+
+/* Material Symbols Adjustments */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL'0, 'wght'400, 'GRAD'0, 'opsz'24;
+}
+
+/* Custom Tooltip */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--md-sys-color-on-surface);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 4px;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}
+
+/* MD3 Dialog Styles */
+#editDialog {
+    width: 780px !important;
+    max-width: 90vw !important;
+    height: 80vh !important;
+    max-height: 80vh !important;
+    --md-dialog-container-shape: 24px;
+    border: 1px solid var(--md-sys-color-outline);
+}
+
+#addUrlDialog,
+#shareSuccessDialog {
+    width: 780px !important;
+    max-width: 90vw !important;
+    --md-dialog-container-shape: 24px;
+    border: 1px solid var(--md-sys-color-outline);
+}
+
+/* Share Dialog Buttons */
+.share-buttons {
+    margin-top: 24px !important;
+}
+
+/* Dialog Header Layout */
+md-dialog [slot="headline"] {
+    padding: 16px 24px 16px 24px !important;
+    margin-bottom: 0 !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    position: relative;
+    overflow: visible !important;
+    z-index: 10;
+}
+
+md-dialog [slot="headline"]::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Remove any potential dividers */
+md-dialog [slot="headline"]+* {
+    border-top: none !important;
+    margin-top: 16px;
+}
+
+/* Dialog Content Scrolling */
+md-dialog:not(.confirm-dialog) [slot="content"] {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 24px 32px 24px;
+    background-color: var(--md-sys-color-surface-container-high);
+}
+
+/* Dialog Form Fields */
+md-dialog md-outlined-text-field {
+    --md-outlined-text-field-container-color: transparent;
+    --md-outlined-text-field-outline-color: var(--md-sys-color-outline);
+    --md-outlined-text-field-focus-outline-color: var(--md-sys-color-primary);
+    --md-outlined-text-field-hover-outline-color: var(--md-sys-color-on-surface-variant);
+    --md-outlined-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-outlined-text-field-hover-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-outlined-text-field-focus-label-text-color: var(--md-sys-color-primary);
+    --md-outlined-text-field-input-text-color: var(--md-sys-color-on-surface);
+    --md-outlined-text-field-container-shape: 12px;
+}
+
+md-dialog md-filled-select {
+    --md-filled-select-text-field-container-color: var(--md-sys-color-surface-container-highest);
+    --md-filled-select-text-field-focus-container-color: var(--md-sys-color-surface-container-highest);
+    --md-filled-select-text-field-input-text-color: var(--md-sys-color-on-surface);
+    --md-filled-select-text-field-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-filled-select-text-field-container-shape: 12px;
+}
+
+md-dialog md-outlined-select {
+    --md-outlined-select-text-field-container-shape: 12px;
+}
+
+/* Dialog Header Buttons */
+md-dialog md-icon-button {
+    --md-icon-button-icon-color: var(--md-sys-color-on-surface-variant);
+}
+
+md-dialog md-icon-button:hover {
+    --md-icon-button-icon-color: var(--md-sys-color-on-surface);
+}
+
+/* Category Menu Styling */
+md-dialog md-menu {
+    --md-menu-container-color: var(--md-sys-color-surface-container-highest);
+    --md-menu-container-elevation: 3;
+    --md-menu-container-shape: 24px;
+    min-width: 195px;
+    width: 195px;
+}
+
+md-dialog md-menu md-menu-item {
+    --md-menu-item-label-text-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-opacity: 0.08;
+    justify-content: center;
+}
+
+/* Save Dialog Button */
+md-icon-button.save-dialog-btn:hover {
+    --md-icon-button-icon-color: var(--md-sys-color-primary);
+}
+
+/* Strategy Toggle Button in Dialog */
+.strategy-toggle-btn {
+    --md-filled-button-container-color: var(--md-sys-color-surface-container-highest);
+    --md-filled-button-label-text-color: var(--md-sys-color-on-surface);
+    --md-filled-button-icon-color: var(--md-sys-color-primary);
+}
+
+@media (max-width: 640px) {
+    #editDialog [slot="headline"] #categoryTitleContainer {
+        min-width: auto;
+    }
+}
+
+/* Force remove any borders or dividers in dialog */
+md-dialog {
+    --md-dialog-divider-color: transparent !important;
+}
+
+/* Confirm Dialog - Using MD3 official tokens */
+md-dialog.confirm-dialog {
+    width: 320px !important;
+    --md-dialog-container-color: var(--md-sys-color-surface-container-high);
+    --md-dialog-headline-color: var(--md-sys-color-on-surface);
+    --md-dialog-headline-font: var(--md-sys-typescale-headline-small-font);
+    --md-dialog-headline-size: var(--md-sys-typescale-headline-small-size);
+    --md-dialog-headline-weight: var(--md-sys-typescale-headline-small-weight);
+    --md-dialog-headline-line-height: var(--md-sys-typescale-headline-small-line-height);
+    --md-dialog-supporting-text-color: var(--md-sys-color-on-surface-variant);
+    --md-dialog-supporting-text-font: var(--md-sys-typescale-body-medium-font);
+    --md-dialog-supporting-text-size: var(--md-sys-typescale-body-medium-size);
+    --md-dialog-supporting-text-weight: var(--md-sys-typescale-body-medium-weight);
+    --md-dialog-supporting-text-line-height: var(--md-sys-typescale-body-medium-line-height);
+    --md-dialog-icon-color: var(--md-sys-color-primary);
+    --md-dialog-icon-size: 24px;
+}
+
+.confirm-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+}
+
+.confirm-icon {
+    font-size: var(--md-dialog-icon-size);
+    color: var(--md-dialog-icon-color);
+    margin-bottom: 20px;
+}
+
+.confirm-title {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--md-sys-color-on-surface);
+    margin: 0 0 20px 0;
+}
+
+.confirm-message {
+    font-family: var(--md-dialog-supporting-text-font);
+    font-size: var(--md-dialog-supporting-text-size);
+    font-weight: var(--md-dialog-supporting-text-weight);
+    line-height: var(--md-dialog-supporting-text-line-height);
+    color: var(--md-dialog-supporting-text-color);
+    margin: 0;
+}
+
+md-dialog.confirm-dialog [slot="actions"] {
+    padding: 16px 24px 24px 24px;
+}
+md-dialog [slot="headline"],
+md-dialog [slot="headline"] *,
+md-dialog [slot="headline"]+*,
+md-dialog [slot="headline"]~* {
+    border: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+}
+
+/* Category title container styling */
+#categoryTitleContainer {
+    position: relative;
+    min-width: 300px;
+}
+
+/* Menu positioning improvements */
+md-dialog md-menu[positioning="popover"] {
+    transform-origin: top center !important;
+}
+
+
+
+/* Item Row Alignment Fix - Stop Looking Wonky */
+#itemsList .grid {
+    align-items: center !important;
+}
+
+#itemsList md-icon-button {
+    height: 56px;
+    width: 56px;
+    flex-shrink: 0;
+    justify-self: end;
+    /* Align delete button to the right */
+}
+
+#itemsList md-outlined-text-field {
+    --md-outlined-text-field-container-height: 56px;
+    min-height: calc(56px + 20px); /* container height + supporting text space */
+}
+
+/* Add bottom padding to fields without supporting text */
+#itemsList md-outlined-text-field:not([supporting-text]) {
+    padding-bottom: 20px;
+}
+
+
+
+/* Form Validation Error Styles */
+md-outlined-text-field.error,
+md-outlined-text-field[error] {
+    --md-outlined-text-field-outline-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-focus-outline-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-label-text-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-error-supporting-text-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-error-hover-outline-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-error-hover-label-text-color: var(--md-sys-color-error) !important;
+}
+
+md-outlined-select.error {
+    --md-outlined-select-text-field-outline-color: var(--md-sys-color-error) !important;
+    --md-outlined-select-text-field-focus-outline-color: var(--md-sys-color-error) !important;
+    --md-outlined-select-text-field-hover-outline-color: var(--md-sys-color-error-container) !important;
+    --md-outlined-select-text-field-label-text-color: var(--md-sys-color-error) !important;
+    --md-outlined-select-text-field-hover-label-text-color: var(--md-sys-color-error-container) !important;
+}
+
+md-filled-select.error {
+    --md-filled-select-text-field-outline-color: var(--md-sys-color-error) !important;
+    --md-filled-select-text-field-focus-outline-color: var(--md-sys-color-error) !important;
+    --md-filled-select-text-field-label-text-color: var(--md-sys-color-error) !important;
+}
+
+/* Tax Type Select Width Control for Mixed Tax */
+#itemsList md-outlined-select[data-field="taxType"] {
+    width: 140px !important;
+    min-width: 140px !important;
+    max-width: 140px !important;
+    --md-outlined-select-text-field-container-height: 56px;
+    padding-bottom: 20px;
+}
+
+/* Hide supporting text (character counter) for ALL fields when NOT in error state */
+md-outlined-text-field:not([error]) {
+    --md-outlined-text-field-supporting-text-color: transparent !important;
+    --md-outlined-text-field-supporting-text-size: 0 !important;
+}
+
+md-outlined-text-field:not([error])::part(supporting-text) {
+    display: none !important;
+}
+
+/* Show error messages for all fields when in error state */
+md-outlined-text-field[error] {
+    --md-outlined-text-field-error-supporting-text-color: var(--md-sys-color-error) !important;
+    --md-outlined-text-field-supporting-text-size: 0.75rem !important;
+}
+
+/* Ensure error state supporting text is visible */
+md-outlined-text-field[error]::part(supporting-text) {
+    display: block !important;
+    color: var(--md-sys-color-error) !important;
+    font-size: 0.75rem !important;
+}
+
+/* Fix uniform height for all dialog text fields - Same as item fields */
+md-dialog md-outlined-text-field {
+    --md-outlined-text-field-container-height: 56px;
+}
+
+/* Ensure supporting text area has consistent height */
+md-dialog md-outlined-text-field::part(supporting-text) {
+    min-height: 16px;
+    line-height: 16px;
+}
+
+/* Show supporting text in dialog */
+md-dialog md-outlined-text-field:not([error]) {
+    --md-outlined-text-field-supporting-text-color: var(--md-sys-color-on-surface-variant) !important;
+    --md-outlined-text-field-supporting-text-size: 0.75rem !important;
+}
+
+md-dialog md-outlined-text-field:not([error])::part(supporting-text) {
+    display: block !important;
+    visibility: visible !important;
+    min-height: 16px;
+    line-height: 16px;
+}
+
+
+/* Add Item Button Styles - Material Design 3 */
+md-text-button.add-item-text-btn {
+    --md-text-button-label-text-color: var(--md-sys-color-primary);
+    --md-text-button-icon-color: var(--md-sys-color-primary);
+    --md-text-button-hover-state-layer-color: var(--md-sys-color-primary);
+    --md-text-button-hover-state-layer-opacity: 0.08;
+    --md-text-button-focus-state-layer-color: var(--md-sys-color-primary);
+    --md-text-button-focus-state-layer-opacity: 0.12;
+    --md-text-button-pressed-state-layer-color: var(--md-sys-color-primary);
+    --md-text-button-pressed-state-layer-opacity: 0.12;
+    /* Ensure state layer container has correct size */
+    --md-text-button-container-shape: 20px;
+    --md-text-button-container-height: 40px;
+}
+
+md-text-button.add-item-text-btn:hover {
+    --md-text-button-label-text-color: var(--md-sys-color-primary);
+    --md-text-button-icon-color: var(--md-sys-color-primary);
+}
+
+/* Common styles for both text buttons */
+md-text-button.test-mode-btn,
+md-text-button.platform-btn {
+    --md-text-button-container-height: 40px;
+    --md-text-button-label-text-font: var(--app-font-stack);
+    --md-text-button-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-icon-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-hover-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-hover-icon-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-focus-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-focus-icon-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-pressed-label-text-color: var(--md-sys-color-on-surface-variant);
+    --md-text-button-pressed-icon-color: var(--md-sys-color-on-surface-variant);
+}
+
+md-text-button.test-mode-btn.selected {
+    background-color: #3a3a3a !important;
+    --md-text-button-label-text-color: var(--md-sys-color-primary) !important;
+    --md-text-button-icon-color: var(--md-sys-color-primary) !important;
+    --md-text-button-hover-label-text-color: var(--md-sys-color-primary) !important;
+    --md-text-button-hover-icon-color: var(--md-sys-color-primary) !important;
+    --md-text-button-focus-label-text-color: var(--md-sys-color-primary) !important;
+    --md-text-button-focus-icon-color: var(--md-sys-color-primary) !important;
+    --md-text-button-pressed-label-text-color: var(--md-sys-color-primary) !important;
+    --md-text-button-pressed-icon-color: var(--md-sys-color-primary) !important;
+}
+
+
+/* Platform Menu Styling - Same as Dialog Menu */
+#platformMenu {
+    --md-menu-container-color: var(--md-sys-color-surface-container-highest);
+    --md-menu-container-elevation: 3;
+    --md-menu-container-shape: 24px;
+    min-width: 120px;
+}
+
+#platformMenu md-menu-item {
+    --md-menu-item-label-text-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-color: var(--md-sys-color-on-surface);
+    --md-menu-item-hover-state-layer-opacity: 0.08;
+}
+
+/* Global MD3 Select Option Styles */
+md-select-option {
+    --md-menu-item-selected-container-color: rgba(255, 255, 255, 0.08);
+    --md-menu-item-hover-state-layer-color: rgba(255, 255, 255, 0.05);
+    --md-menu-item-focus-state-layer-color: rgba(255, 255, 255, 0.08);
+}
+
+md-select-option[selected] {
+    --md-menu-item-selected-container-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Dialog Section Separators - Darker Gradient Lines */
+#editDialog .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(82, 82, 91, 0.6) 20%,
+            rgba(82, 82, 91, 0.9) 50%,
+            rgba(82, 82, 91, 0.6) 80%,
+            transparent 100%);
+    border: none !important;
+    margin: 16px 0 32px 0 !important;
+    display: block !important;
+}
+
+/* First Block: Add Item and Comment Layout */
+
+/* Comment field styling - 50% width and right aligned */
+#editDialog .w-1\/2.ml-auto {
+    max-width: 50%;
+}
+
+/* Second Block: Amount Summary Layout */
+
+/* Amount labels right alignment - only the label text, not the numbers */
+.amount-label {
+    text-align: right;
+    min-width: 80px;
+    /* Ensure consistent spacing for right alignment */
+}
+
+/* Add Item button styling in dialog */
+#editDialog md-text-button.add-item-text-btn {
+    margin: 0;
+    flex-shrink: 0;
+    /* Remove padding: 0, preserve MD3 button's correct internal structure */
+}
+
+/* Item Fields Grid - Responsive Layout */
+@media (max-width: 640px) {
+    .item-fields-grid {
+        grid-template-columns: 1fr 56px !important;
+        gap: 12px !important;
+    }
+
+    /* Row 1: Name (full width) */
+    .item-fields-grid>*:nth-child(1) {
+        grid-column: 1 / -1;
+    }
+
+    /* Row 2: Qty (full width) */
+    .item-fields-grid>*:nth-child(2) {
+        grid-column: 1 / -1;
+    }
+
+    /* Row 3: Unit (full width) */
+    .item-fields-grid>*:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+
+    /* Row 4: Price + Delete (or Tax if exists) */
+    .item-fields-grid>*:nth-child(4) {
+        grid-column: 1;
+    }
+
+    /* Tax (full width if exists) */
+    .item-fields-grid>*:nth-child(5):not(.remove-item-btn) {
+        grid-column: 1 / -1;
+    }
+
+    /* Delete button */
+    .item-fields-grid>.remove-item-btn {
+        grid-column: 2;
+        grid-row: 4;
+    }
+
+    /* When Tax exists, Delete moves to row 6 */
+    .item-fields-grid>*:nth-child(6) {
+        grid-column: 2;
+        grid-row: 5;
+    }
+}
+
+/* Comment input styling */
+#editDialog .w-1\/2 md-outlined-text-field {
+    --md-outlined-text-field-container-height: 40px;
+}
+
+/* Force right alignment for comment input - Multiple approaches */
+#editDialog .comment-field input,
+#editDialog md-outlined-text-field.comment-field input,
+#editDialog md-outlined-text-field.comment-field::part(input),
+#editDialog .comment-field ::part(input) {
+    text-align: right !important;
+}
+
+/* Additional hiding for comment field character counter */
+#editDialog .comment-field::part(supporting-text) {
+    display: none !important;
+}
+
+/* Amount Summary spacing improvements - No longer needed as border was removed */
+
+/* Dialog Blur Effect - Input Container & Statistics Section */
+.input-container,
+#statsSection {
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-container.dialog-blur,
+#statsSection.dialog-blur,
+#previewSection.dialog-blur {
+    filter: blur(4px);
+    opacity: 0.6;
+    pointer-events: none;
+    /* Prevent interaction when blurred */
+}
+
+
+/* Platform Menu Blur Effect - Invoice Table with Gradient */
+#previewSection {
+    position: relative;
+}
+
+#previewSection::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top,
+            rgba(10, 10, 10, 0.8) 0%,
+            rgba(10, 10, 10, 0.6) 30%,
+            rgba(10, 10, 10, 0.4) 60%,
+            rgba(10, 10, 10, 0.2) 80%,
+            transparent 100%);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    mask: linear-gradient(to top,
+            black 0%,
+            black 20%,
+            rgba(0, 0, 0, 0.8) 40%,
+            rgba(0, 0, 0, 0.5) 70%,
+            transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#previewSection.menu-blur::before {
+    opacity: 1;
+}
+
+
+
+/* =====================================
+   HEADER STYLING
+   ===================================== */
+
+/* Header Background */
+header {
+    background-color: var(--md-sys-color-surface);
+    overflow-x: visible;
+}
+
+header .logo-shimmer {
+    padding-right: 0.3em;
+}
+
+/* =====================================
+   SCROLL GLASS OVERLAY EFFECTS
+   ===================================== */
+
+/* Header Glass Overlay controlled by scroll state */
+body.scrolled header {
+    background: linear-gradient(to bottom,
+            #0a0a0a 0%,
+            #0a0a0a 85%,
+            rgba(10, 10, 10, 0.6) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Bottom Input Area Glass Overlay - No extra length */
+body.scrolled .fixed.bottom-0 {
+    background: linear-gradient(to top,
+            #0a0a0a 0%,
+            #0a0a0a 80%,
+            rgba(10, 10, 10, 0.9) 90%,
+            rgba(10, 10, 10, 0.7) 95%,
+            rgba(10, 10, 10, 0.4) 100%) !important;
+    backdrop-filter: blur(6px) !important;
+    -webkit-backdrop-filter: blur(6px) !important;
+}
+
+/* =====================================
+   CAVEAT HANDWRITING FONT FOR LOGO
+   ===================================== */
+
+/* Caveat - Relaxed and natural, professional yet casual */
+.font-caveat {
+    font-family: 'Caveat', cursive;
+}
+
+/* Logo Text Shimmer Effect */
+.logo-shimmer {
+    position: relative;
+    overflow: visible;
+}
+
+.logo-shimmer::before {
+    content: 'Lazy PageSpeed';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            transparent 40%,
+            #0f172a 50%,
+            transparent 60%,
+            transparent 100%);
+    background-size: 210% 100%;
+    background-position: 80% 0%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    opacity: 0;
+    animation: textShimmer 18s infinite linear 18s;
+    animation-fill-mode: none;
+}
+
+@keyframes textShimmer {
+    0% {
+        opacity: 0;
+        background-position: 80% 0%;
+    }
+
+    1% {
+        opacity: 1;
+        background-position: 80% 0%;
+    }
+
+    11% {
+        opacity: 1;
+        background-position: -80% 0%;
+    }
+
+    12% {
+        opacity: 0;
+        background-position: -80% 0%;
+    }
+
+    100% {
+        opacity: 0;
+        background-position: 80% 0%;
+    }
+}
+
+/* =====================================
+   FOOTER LINK STYLES
+   ===================================== */
+
+/* Footer links hover effect using primary color */
+.footer-link {
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--md-sys-color-primary) !important;
+}
+
+/* =====================================
+   TABLE ROW ANIMATIONS
+   ===================================== */
+
+/* Simple fade animations for table rows */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.row-fade-in {
+    animation: fadeIn 0.6s ease-out;
+    opacity: 0;
+}
+
+.row-fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Dialog Blur Effect */
+.input-container.dialog-blur,
+#statsSection.dialog-blur,
+#resultsSection.dialog-blur {
+    filter: blur(4px);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Scroll Blur Effect */
+body.scrolled header {
+    background: linear-gradient(to bottom,
+            #0a0a0a 0%,
+            #0a0a0a 85%,
+            rgba(10, 10, 10, 0.6) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+body.scrolled .fixed-bottom-container {
+    background: linear-gradient(to top,
+            #0a0a0a 0%,
+            #0a0a0a 80%,
+            rgba(10, 10, 10, 0.9) 90%,
+            rgba(10, 10, 10, 0.7) 95%,
+            rgba(10, 10, 10, 0.4) 100%) !important;
+}
+/* ===== Report Dialog Styles ===== */
+
+/* Copy Button Transition */
+#reportDialog md-icon-button .material-symbols-outlined {
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Screenshot */
+.screenshot-wrapper {
+  margin-bottom: 24px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+}
+
+.screenshot-wrapper.animate {
+  animation: screenshotFadeIn 1.2s ease forwards;
+}
+
+@keyframes screenshotFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.screenshot-wrapper img {
+  border-radius: 12px;
+  height: 348px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.screenshot {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #2B2930;
+}
+
+.screenshot img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Scores Grid */
+.scores-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.score-card {
+  background: rgb(41, 41, 41);
+  border: 1px solid #49454F;
+  border-radius: 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.score-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: #1A1A1A;
+  padding: 20px 16px;
+  border-radius: 12px;
+}
+
+.score-circle {
+  width: 70px;
+  height: 70px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.score-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-circle-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 6;
+}
+
+.score-circle-progress {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.score-circle-progress.animated {
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.score-circle-text {
+  color: #E6E1E5;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.score-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #E6E1E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.score-title .crux-metric-badge {
+  border-radius: 50%;
+}
+
+.score-subtitle {
+  font-size: 12px;
+  color: #CAC4D0;
+  text-align: center;
+  background: transparent;
+  padding: 12px 16px;
+  width: 100%;
+}
+
+/* Core Web Vitals */
+.crux-container {}
+
+.crux-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.crux-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.crux-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.crux-status.fast {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+.crux-status.average {
+  border-color: #fb923c;
+  background: rgba(251, 146, 60, 0.1);
+  color: #fb923c;
+}
+
+.crux-status.slow {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+.crux-subtitle {
+  font-size: 13px;
+  color: #CAC4D0;
+  margin-bottom: 20px;
+}
+
+.crux-expand-toggle {
+  background: none;
+  border: none;
+  color: var(--md-sys-color-primary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.crux-expand-toggle .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.crux-metrics.collapsed .crux-legend {
+  display: none !important;
+}
+
+.crux-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.crux-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.crux-metrics-row.crux-three-cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.crux-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgb(41, 41, 41);
+  border: 1px solid #49454F;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.crux-metric-name {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #1A1A1A;
+  padding: 16px 16px 0 16px;
+  border-radius: 12px 12px 0 0;
+}
+
+.crux-metric-en {
+  font-size: 14px;
+  font-weight: 500;
+  color: #E6E1E5;
+}
+
+.crux-metric-zh {
+  font-size: 12px;
+  color: #938F99;
+  margin-top: 2px;
+}
+
+.crux-metric-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.crux-metric-badge.good {
+  background: #4ade80;
+}
+
+.crux-metric-badge.needs-improvement,
+.crux-metric-badge.average {
+  background: #fb923c;
+}
+
+.crux-metric-badge.poor {
+  background: #f87171;
+}
+
+.crux-value-bar-wrapper {
+  position: relative;
+  margin-bottom: 0;
+  background: #1A1A1A;
+  padding: 16px;
+  border-radius: 0 0 12px 12px;
+}
+
+.crux-metric-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #E6E1E5;
+  position: absolute;
+  top: 20px;
+  transform: translateX(-50%);
+  transition: left 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  left: 50%;
+  white-space: nowrap;
+}
+
+.crux-value-pointer {
+  position: absolute;
+  top: 50px;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 20px;
+  background: #E6E1E5;
+  transition: left 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  left: 16px;
+  z-index: 10;
+}
+
+.crux-bar-container {
+  margin-top: 40px;
+  height: 8px;
+  position: relative;
+  display: flex;
+  margin-bottom: 20px;
+  z-index: 1;
+}
+
+.crux-bar-segment {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0;
+}
+
+.crux-bar-segment.good {
+  background: #e8e8e8;
+}
+
+.crux-bar-segment.needs-improvement {
+  background: #a0a0a0;
+}
+
+.crux-bar-segment.poor {
+  background: #606060;
+}
+
+.crux-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  background: transparent;
+  padding: 16px;
+}
+
+.crux-legend-item {
+  display: flex;
+  justify-content: space-between;
+  color: #CAC4D0;
+}
+
+.crux-legend-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crux-legend-value {
+  font-weight: 500;
+}
+
+/* Categories Section */
+.categories-section {}
+
+.category-section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  position: relative;
+}
+
+/* Gradient divider - shared gradient definition */
+:root {
+  --gradient-divider: linear-gradient(90deg,
+    transparent 0%,
+    rgba(73, 69, 79, 0.6) 20%,
+    rgba(73, 69, 79, 0.9) 50%,
+    rgba(73, 69, 79, 0.6) 80%,
+    transparent 100%
+  );
+}
+
+/* Gradient divider - shared style */
+.category-section::after,
+.gradient-divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--gradient-divider);
+}
+
+.category-section::after {
+  bottom: 0;
+}
+
+.gradient-divider::before {
+  top: 0;
+}
+
+.category-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.category-section:last-child::after {
+  display: none;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 12px;
+}
+
+.category-title-group h3 {
+  color: #E6E1E5;
+  font-size: 20px;
+  margin: 0 0 4px 0;
+}
+
+.category-summary {
+  color: #CAC4D0;
+  font-size: 12px;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--md-sys-color-primary);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-weight: 500;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.toggle-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.category-content.hidden {
+  display: none;
+}
+
+/* Subsection */
+.subsection {
+  margin: 16px 0;
+}
+
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  border-radius: 12px;
+}
+
+.subsection-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.subsection-title-group h4 {
+  color: #E6E1E5;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.subsection-title-group md-icon-button {
+  --md-icon-button-state-layer-height: 32px;
+  --md-icon-button-state-layer-width: 32px;
+  --md-icon-button-icon-size: 18px;
+  --md-icon-button-icon-color: #E6E1E5;
+}
+
+.subsection-title-group md-icon-button .material-symbols-outlined {
+  font-size: 18px;
+  color: #E6E1E5;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.subsection-badge {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.subsection-badge.warning {
+  background: #fb923c;
+}
+
+.subsection-badge.success {
+  background: #4ade80;
+}
+
+.audits-list {
+  padding: 0;
+}
+
+.audits-list.hidden {
+  display: none;
+}
+
+/* Audit Item */
+.audit-item {
+  margin-bottom: 12px;
+  background: rgb(41, 41, 41);
+  border: 1px solid RGB(73, 69, 79);
+  border-radius: 12px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.audit-item.animate {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.audit-item:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  min-height: 56px;
+  background: #1A1A1A;
+  position: relative;
+}
+
+.audit-header[aria-expanded="true"] {
+  background: rgb(26, 26, 26);
+  border-radius: 12px;
+}
+
+.audit-title-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.audit-indicator {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.audit-indicator.good {
+  color: #4ade80;
+}
+
+.audit-indicator.average {
+  color: #fb923c;
+}
+
+.audit-indicator.poor {
+  color: #f87171;
+}
+
+.audit-title {
+  color: #E6E1E5;
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.audit-subtitle {
+  color: #938F99;
+  font-size: 12px;
+}
+
+.expand-icon {
+  color: #CAC4D0;
+  transition: transform 0.3s ease;
+}
+
+.audit-header[aria-expanded="true"] .expand-icon {
+  transform: rotate(180deg);
+}
+
+.audit-details {
+  padding: 16px 24px 24px 24px;
+  color: #CAC4D0;
+  line-height: 1.6;
+  font-size: 12px;
+}
+
+.audit-details.hidden {
+  display: none;
+}
+
+.audit-description {
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.resources-list {
+  background: transparent;
+  border-radius: 12px;
+  padding: 0;
+}
+
+.resources-header {
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #E6E1E5;
+  font-size: 12px;
+}
+
+.resource-item {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #49454F;
+}
+
+.resource-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.resource-url {
+  color: var(--md-sys-color-primary);
+  font-size: 12px;
+  word-break: break-all;
+  margin-bottom: 4px;
+}
+
+.resource-stats {
+  font-size: 11px;
+  color: #CAC4D0;
+}
+
+/* Report Dialog */
+#reportDialog {
+  width: 780px !important;
+  max-width: 90vw !important;
+  height: 85vh !important;
+  max-height: 85vh !important;
+  --md-dialog-container-shape: 24px;
+  --md-dialog-container-color: #1a1a1a;
+}
+
+/* Strategy Report Containers */
+.strategy-report {
+  margin-bottom: 32px;
+}
+
+.strategy-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #E6E1E5;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #49454F;
+}
+
+.strategy-content {
+  /* 內容區域 */
+}
+
+.overview-section {
+  margin-bottom: 24px;
+}
+
+.section-card {
+  background: transparent;
+  border: 1px solid #49454F;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-card.crux-section {
+  border: none;
+  padding: 0;
+}
+
+/* Report Dialog Tabs */
+#reportDialog md-tabs {
+  --md-primary-tab-container-color: transparent;
+  --md-primary-tab-active-indicator-color: var(--md-sys-color-primary);
+  --md-primary-tab-active-indicator-shape: 0;
+  --md-divider-thickness: 0;
+}
+
+#reportDialog md-primary-tab {
+  --md-primary-tab-label-text-color: #CAC4D0;
+  --md-primary-tab-active-label-text-color: var(--md-sys-color-primary);
+  --md-primary-tab-icon-color: #CAC4D0;
+  --md-primary-tab-active-icon-color: var(--md-sys-color-primary);
+  --md-primary-tab-hover-state-layer-opacity: 0;
+  --md-primary-tab-pressed-state-layer-opacity: 0;
+  --md-primary-tab-focus-state-layer-opacity: 0;
+  --md-ripple-hover-color: transparent !important;
+  --md-ripple-pressed-color: transparent !important;
+  --md-ripple-hover-opacity: 0 !important;
+  --md-ripple-pressed-opacity: 0 !important;
+  --md-primary-tab-active-indicator-shape: 0;
+}
+
+#reportDialog md-primary-tab::before,
+#reportDialog md-primary-tab::after {
+  display: none !important;
+}
+
+#reportDialog md-primary-tab .md3-tab__ripple,
+#reportDialog md-primary-tab md-ripple {
+  display: none !important;
+}
+
+#reportDialog md-primary-tab:not([active]) {
+  --md-primary-tab-label-text-color: #6B6B6B;
+  --md-primary-tab-icon-color: #6B6B6B;
+}
+
+/* Report Dialog Content - 加上 padding 和滾動樣式 */
+#reportDialog [slot="content"] {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+#reportDialog [slot="content"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+#reportDialog [slot="content"]::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+#reportDialog [slot="content"]::-webkit-scrollbar-thumb {
+  background: #49454F;
+  border-radius: 4px;
+}
+
+#reportDialog [slot="content"]::-webkit-scrollbar-thumb:hover {
+  background: #5f5b66;
+}
+
+/* Share Dialog Styles */
+.share-dialog {
+  width: 480px !important;
+  max-width: 90vw !important;
+}
+
+.share-icon-btn {
+  --md-icon-button-icon-color: #f1f1f1;
+}

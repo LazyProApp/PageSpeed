@@ -1,0 +1,10 @@
+{
+  "credentials": {
+    "api_key": "YOUR_PAGESPEED_API_KEY"
+  },
+  "urls": [
+    "https://www.google.com",
+    "https://www.cloudflare.com",
+    "https://developers.google.com/speed/pagespeed/insights"
+  ]
+}

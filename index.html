@@ -1,0 +1,493 @@
+<!doctype html>
+<!--
+888                                 8888888888
+888                                 888
+888                                 888
+888       8888b.  88888888 888  888 888     88888b.   .d88b.  88888b.   .d88b.
+888          "88b    d88P  888  888 8888888 888 "88b d88P"88b 888 "88b d88P"88b
+888      .d888888   d88P   888  888 888     888  888 888  888 888  888 888  888
+888      888  888  d88P    Y88b 888 888     888  888 Y88b 888 888  888 Y88b 888
+88888888 "Y888888 88888888  "Y88888 8888888 888  888  "Y88888 888  888  "Y88888
+                                888                       888              888
+                           Y8b d88P                  Y8b d88P         Y8b d88P
+                            "Y88P"                    "Y88P"           "Y88P"
+
+Lazy PageSpeed - PageSpeed 效能分析工具
+Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
+-->
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lazy PageSpeed - PageSpeed 效能分析工具</title>
+    <meta name="description" content="Lazy PageSpeed 提供快速的 PageSpeed 效能分析，支援 Mobile/Desktop 策略、自動 CMS 偵測，零信任架構保障隱私安全。" />
+    <meta name="keywords" content="PageSpeed,網站效能,效能分析,Core Web Vitals,LCP,FCP,CLS,SEO優化,網站速度,行動版優化,桌面版優化,零信任架構,隱私保護" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Lazy PageSpeed - 輕鬆自在測效能">
+    <meta property="og:description" content="快速分析網站效能，支援 Mobile/Desktop 策略、Core Web Vitals 指標。零信任架構，不儲存分析資料，保障隱私安全。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lazy-pagespeed.pages.dev/">
+    <meta property="og:image" content="https://lazy-pagespeed.pages.dev/assets/favicon.png">
+    <meta property="og:locale" content="zh_TW">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lazy PageSpeed - 輕鬆自在測效能">
+    <meta name="twitter:description" content="快速分析網站效能，支援 Mobile/Desktop 策略、Core Web Vitals 指標。零信任架構，不儲存分析資料，保障隱私安全。">
+    <meta name="twitter:image" content="https://lazy-pagespeed.pages.dev/assets/favicon.png">
+
+    <style>
+        #initial-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #0a0a0a;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loader {
+            height: 50px;
+            aspect-ratio: 2;
+            border: 10px solid #000;
+            box-sizing: border-box;
+            background:
+                radial-gradient(farthest-side, #fff 98%, #0000) left/20px 20px,
+                radial-gradient(farthest-side, #fff 98%, #0000) left/20px 20px,
+                radial-gradient(farthest-side, #fff 98%, #0000) center/20px 20px,
+                radial-gradient(farthest-side, #fff 98%, #0000) right/20px 20px,
+                #000;
+            background-repeat: no-repeat;
+            filter: blur(4px) contrast(10);
+            animation: l14 1s infinite;
+        }
+
+        @keyframes l14 {
+            100% {
+                background-position: right, left, center, right;
+            }
+        }
+    </style>
+
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+
+    <script type="importmap">
+        {
+        "imports": {
+          "@material/web/": "https://esm.run/@material/web/"
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import '@material/web/all.js';
+      import { styles as typescaleStyles } from '@material/web/typography/md-typescale-styles.js';
+      document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+    </script>
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        'primary-dark': '#4f46e5',
+                        secondary: '#8b5cf6',
+                        surface: '#0a0a0a',
+                        'surface-variant': '#1a1a1a',
+                        'on-surface': '#f1f1f1',
+                        'on-surface-variant': '#a1a1aa'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        body,
+        h1,
+        h2 {
+            margin: 0;
+            padding: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .loading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            z-index: 9999;
+            background: var(--md-sys-color-primary);
+            animation: progressBar 1.5s linear infinite;
+        }
+
+        @keyframes progressBar {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100vw);
+            }
+        }
+
+        .surface-container {
+            background-color: var(--md-sys-color-surface-container);
+        }
+
+        .text-on-surface-variant {
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .text-on-surface {
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .border-outline {
+            border-color: rgb(39, 39, 42);
+        }
+    </style>
+</head>
+
+<body class="text-gray-100 loading bg-surface">
+    <div id="initial-loader">
+        <div class="loader"></div>
+    </div>
+
+    <div id="loadingProgress" class="loading-progress" style="display: none"></div>
+
+    <md-menu id="mobileMoreMenu" anchor="mobileMoreBtn" positioning="popover" class="actions-menu">
+        <md-menu-item id="mobileDownloadMenuItem">
+            <span slot="headline">Download</span>
+        </md-menu-item>
+        <md-menu-item id="mobileClearMenuItem">
+            <span slot="headline">Clear All</span>
+        </md-menu-item>
+    </md-menu>
+
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-[780px] mx-auto px-4">
+            <div class="flex items-center justify-center py-5">
+                <div class="font-caveat text-3xl font-medium tracking-wide bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent logo-shimmer">
+                    Lazy PageSpeed
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-20 pb-40">
+        <div class="max-w-[780px] mx-auto px-4">
+            <!-- 統計區 -->
+            <section class="mb-8" id="statsSection">
+                <div class="stats-card shadow-sm border border-zinc-800 px-6 py-10">
+                    <table class="w-full table-fixed">
+                        <colgroup>
+                            <col style="width: 33%" />
+                            <col style="width: 34%" />
+                            <col style="width: 33%" />
+                        </colgroup>
+                        <tr>
+                            <td class="border-r border-zinc-800 px-3">
+                                <div class="text-left mb-3">
+                                    <div class="text-sm text-gray-100">Total<span class="hide-on-mobile"> Pages</span></div>
+                                </div>
+                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="totalCount">
+                                    0
+                                </div>
+                            </td>
+
+                            <td class="border-r border-zinc-800 px-3">
+                                <div class="text-left mb-3">
+                                    <div class="text-sm text-gray-100">Analyzing</div>
+                                </div>
+                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="analyzingCount">
+                                    0
+                                </div>
+                            </td>
+
+                            <td class="px-3">
+                                <div class="text-left mb-3">
+                                    <div class="text-sm text-gray-100">Completed</div>
+                                </div>
+                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="completedCount">
+                                    0
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 報告區 -->
+            <section class="mb-8" id="resultsSection">
+                <div class="preview-card shadow-sm border border-zinc-800">
+                    <md-linear-progress id="tableProgress" indeterminate>
+                    </md-linear-progress>
+                    <div class="p-6">
+                        <div class="invoice-header-container">
+                            <div class="flex items-center justify-between flex-wrap gap-y-4">
+                                <h2 class="text-lg font-semibold text-gray-100 invoice-title">
+                                    Page Insights
+                                </h2>
+
+                                <div class="header-actions flex items-center space-x-2 sm:space-x-4">
+                                    <div class="filter-tabs-row flex space-x-1 sm:space-x-2">
+                                        <md-text-button class="filter-tab active" data-status="all">
+                                            <span>All</span>
+                                        </md-text-button>
+
+                                        <md-text-button class="filter-tab" data-status="success">
+                                            <span>Success</span>
+                                        </md-text-button>
+                                        <md-text-button class="filter-tab" data-status="failed">
+                                            <span>Failed</span>
+                                        </md-text-button>
+                                    </div>
+
+                                    <div class="split-button">
+                                        <md-filled-tonal-button id="addNewBtn" class="split-btn-main">
+                                            <md-icon slot="icon">add</md-icon>
+                                            <span>New</span>
+                                        </md-filled-tonal-button>
+                                        <md-filled-tonal-button id="shareBtn" class="split-btn-middle">
+                                            <md-icon slot="icon">share</md-icon>
+                                            <span>Share</span>
+                                        </md-filled-tonal-button>
+                                        <md-filled-tonal-button id="moreActionsBtn" class="split-btn-dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <md-icon slot="icon">expand_more</md-icon>
+                                        </md-filled-tonal-button>
+                                    </div>
+                                </div>
+
+                                <div class="mobile-actions sm:hidden flex gap-1">
+                                    <md-icon-button id="mobileNewBtn">
+                                        <md-icon>edit</md-icon>
+                                    </md-icon-button>
+                                    <md-icon-button id="mobileShareBtn">
+                                        <md-icon>share</md-icon>
+                                    </md-icon-button>
+                                    <md-icon-button id="mobileMoreBtn">
+                                        <md-icon>more_vert</md-icon>
+                                    </md-icon-button>
+                                </div>
+
+                                <md-menu id="moreActionsMenu" anchor="moreActionsBtn" positioning="popover" class="actions-menu">
+                                    <md-menu-item id="downloadMenuItem">
+                                        <span slot="headline">Download</span>
+                                    </md-menu-item>
+                                    <md-menu-item id="clearDataMenuItem">
+                                        <span slot="headline">Clear All</span>
+                                    </md-menu-item>
+                                </md-menu>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="resultsTableContainer">
+                        <div id="emptyState" class="empty-state">
+                            <div class="empty-state-icon">
+                                <span class="material-symbols-outlined">speed</span>
+                            </div>
+                            <div class="empty-state-title">No page yet</div>
+                        </div>
+
+                        <div id="resultsTable" style="display: none">
+                            <table class="w-full" style="table-layout: fixed;">
+                                <thead>
+                                    <tr class="table-header-row border-b border-zinc-800">
+                                        <th class="text-left py-4 px-6 table-header" style="width: 80px">
+                                            Status
+                                        </th>
+                                        <th class="text-left py-4 px-6 table-header">URL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsBody">
+                                    <!-- 動態生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- 輸入區（固定在底部） -->
+    <div class="fixed bottom-0 left-0 right-0 fixed-bottom-container">
+        <div class="max-w-[780px] mx-auto px-4 py-4">
+            <div class="input-container p-4 border border-zinc-800">
+                <md-linear-progress id="fetchProgress" indeterminate style="display: none">
+                </md-linear-progress>
+                <div class="mb-1">
+                    <input type="text" id="dataSource" placeholder="Upload JSON file" class="custom-input w-full" autocomplete="off" />
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <md-icon-button id="uploadBtn" class="upload-btn">
+                            <md-icon>add</md-icon>
+                        </md-icon-button>
+
+                        <!-- <md-text-button class="platform-btn" disabled>
+                            <md-icon slot="icon">speed</md-icon>
+                            <span>PageSpeed</span>
+                        </md-text-button> -->
+
+                        <md-text-button id="proModeBtn" class="test-mode-btn">
+                            <md-icon slot="icon">bolt</md-icon>
+                            <span class="test-mode-text-full">Pro Mode</span>
+                            <span class="test-mode-text-short">Pro</span>
+                        </md-text-button>
+                    </div>
+
+                    <md-filled-icon-button id="actionBtn" class="execute-btn disabled">
+                        <md-icon>send</md-icon>
+                    </md-filled-icon-button>
+                    <md-filled-icon-button id="actionBtnStop" class="execute-btn-stop" style="display: none;">
+                        <md-icon>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 6h12v12H6z" />
+                            </svg>
+                        </md-icon>
+                    </md-filled-icon-button>
+                    <md-filled-button id="actionBtnText" class="execute-btn-text" style="display: none;">
+                        Start
+                    </md-filled-button>
+                </div>
+            </div>
+
+            <div class="mt-2 pt-1 text-center">
+                <div class="flex justify-center items-center gap-4 text-xs text-gray-500">
+                    <span>&copy; Lazy PageSpeed</span>
+                    <a href="https://github.com/neltseng" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Github</a>
+                    <a href="https://github.com/neltseng/lazy-pagespeed/issues" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Issues</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".json" class="hidden" />
+
+    <!-- Add URL Dialog -->
+    <md-dialog id="addUrlDialog">
+        <div slot="headline" class="flex items-center justify-between">
+            <md-icon-button id="closeAddUrlBtn">
+                <md-icon>close</md-icon>
+            </md-icon-button>
+            <div class="flex-1 text-center">
+                <h2 class="text-lg font-semibold">分析網址</h2>
+            </div>
+            <md-icon-button id="confirmAddUrlBtn">
+                <md-icon>check</md-icon>
+            </md-icon-button>
+        </div>
+        <div slot="content" class="space-y-4">
+            <md-outlined-text-field label="網址" id="newUrlInput" type="url" required supporting-text="輸入網頁網址或 sitemap.xml 網址（需支援 CORS）" error-text="請輸入有效的網址" style="width: 100%">
+            </md-outlined-text-field>
+        </div>
+    </md-dialog>
+
+    <!-- Report Dialog -->
+    <md-dialog id="reportDialog">
+        <div slot="headline" class="flex items-center">
+            <md-icon-button value="cancel">
+                <md-icon>close</md-icon>
+            </md-icon-button>
+            <div class="flex-1 text-center">
+                <h2 class="text-lg font-semibold" id="reportUrl">Report</h2>
+            </div>
+        </div>
+
+        <div slot="content" id="reportContent" class="space-y-6">
+            <!-- 效能分數 -->
+            <section>
+                <h3 class="text-base font-semibold mb-3">Performance Score</h3>
+                <div class="text-4xl font-bold sf-numbers" id="reportScore">--</div>
+            </section>
+
+            <!-- Core Web Vitals -->
+            <section>
+                <h3 class="text-base font-semibold mb-3">Core Web Vitals</h3>
+                <div class="space-y-2" id="reportVitals">
+                    <!-- 動態生成 -->
+                </div>
+            </section>
+
+            <!-- Opportunities -->
+            <section>
+                <h3 class="text-base font-semibold mb-3">Opportunities</h3>
+                <div class="space-y-4" id="reportOpportunities">
+                    <!-- 動態生成 -->
+                </div>
+            </section>
+
+            <!-- WordPress Analysis -->
+            <section id="reportWpAnalysis" style="display: none">
+                <h3 class="text-base font-semibold mb-3">WordPress Analysis</h3>
+                <div class="space-y-3" id="reportWpContent">
+                    <!-- 動態生成 -->
+                </div>
+            </section>
+        </div>
+    </md-dialog>
+
+    <!-- Share Success Dialog -->
+    <md-dialog id="shareSuccessDialog">
+        <div slot="headline" class="flex items-center justify-between">
+            <md-icon-button id="closeShareDialogBtn">
+                <md-icon>close</md-icon>
+            </md-icon-button>
+            <div class="flex-1 text-center">
+                <h2 class="text-lg font-semibold">分享報告</h2>
+            </div>
+            <div style="width: 48px;"></div>
+        </div>
+        <div slot="content" class="space-y-4">
+            <md-outlined-text-field label="報告網址" id="shareUrlInput" type="url" readonly style="width: 100%">
+            </md-outlined-text-field>
+
+            <div class="share-buttons" style="
+                display: flex;
+                justify-content: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            ">
+                <md-filled-tonal-button class="share-icon-btn" data-platform="twitter" title="分享到 X">
+                    <svg slot="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M13.346 10.932 18.88 4.5h-1.311l-4.805 5.585L8.926 4.5H4.5l5.803 8.446L4.5 19.69h1.311l5.074-5.898 4.053 5.898h4.426zM11.55 13.02l-.588-.84-4.678-6.693h2.014l3.776 5.4.588.842 4.907 7.02h-2.014z"></path></svg>
+                    <span>分享到 X</span>
+                </md-filled-tonal-button>
+
+                <md-filled-tonal-button class="share-icon-btn" data-platform="facebook" title="分享到 Facebook">
+                    <svg slot="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M22 12.061C22 6.505 17.523 2 12 2S2 6.505 2 12.061c0 5.022 3.657 9.184 8.438 9.939v-7.03h-2.54V12.06h2.54V9.845c0-2.522 1.492-3.915 3.777-3.915 1.094 0 2.238.197 2.238.197v2.476h-1.26c-1.243 0-1.63.775-1.63 1.57v1.888h2.773l-.443 2.908h-2.33V22c4.78-.755 8.437-4.917 8.437-9.939"></path></svg>
+                    <span>分享到 Facebook</span>
+                </md-filled-tonal-button>
+
+                <md-filled-tonal-button class="share-icon-btn" data-platform="copy" title="複製連結">
+                    <md-icon slot="icon">link</md-icon>
+                    <span>複製連結</span>
+                </md-filled-tonal-button>
+            </div>
+        </div>
+    </md-dialog>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
