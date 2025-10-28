@@ -22,6 +22,7 @@ Desktop.ini
 # Cloudflare Workers
 workers/.wrangler/
 workers/wrangler.toml.backup
+.wrangler/
 .dev.vars
 
 # Build outputs
@@ -66,3 +67,11 @@ coverage/
 # User uploaded files (如果有的話)
 uploads/
 user-data/
+
+# Development & Analysis tools
+sonar-project.properties
+*.before-*
+download-sonar-issues.js
+
+# Prettier config (if using project-wide settings)
+# .prettierrc

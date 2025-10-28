@@ -1,42 +1,43 @@
 <!doctype html>
 <!--
-888                                 8888888888
-888                                 888
-888                                 888
-888       8888b.  88888888 888  888 888     88888b.   .d88b.  88888b.   .d88b.
-888          "88b    d88P  888  888 8888888 888 "88b d88P"88b 888 "88b d88P"88b
-888      .d888888   d88P   888  888 888     888  888 888  888 888  888 888  888
-888      888  888  d88P    Y88b 888 888     888  888 Y88b 888 888  888 Y88b 888
-88888888 "Y888888 88888888  "Y88888 8888888 888  888  "Y88888 888  888  "Y88888
-                                888                       888              888
-                           Y8b d88P                  Y8b d88P         Y8b d88P
-                            "Y88P"                    "Y88P"           "Y88P"
+       ______                        ________
+       ___  / ______ ____________  _____  __ \______________
+       __  /  _  __ `/___  /__  / / /__  /_/ /__  ___/_  __ \
+       _  /___/ /_/ / __  /__  /_/ / _  ____/ _  /    / /_/ /
+       /_____/\__,_/  _____/_\__, /  /_/      /_/     \____/
+                            /____/
+________                        ________                     _________
+___  __ \______ ________ ______ __  ___/________ _____ _____ ______  /
+__  /_/ /_  __ `/__  __ `/_  _ \_____ \ ___  __ \_  _ \_  _ \_  __  /
+_  ____/ / /_/ / _  /_/ / /  __/____/ / __  /_/ //  __//  __// /_/ /
+/_/      \__,_/  _\__, /  \___/ /____/  _  .___/ \___/ \___/ \__,_/
+                 /____/                 /_/
 
-Lazy PageSpeed - PageSpeed 效能分析工具
-Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
+Lazy PageSpeed - PageSpeed Analysis Tool
+Built with Claude Code, Cloudflare Workers, Pages, KV & R2 | by Nel Tseng
 -->
 <html lang="zh-TW">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lazy PageSpeed - PageSpeed 效能分析工具</title>
-    <meta name="description" content="Lazy PageSpeed 提供快速的 PageSpeed 效能分析，支援 Mobile/Desktop 策略、自動 CMS 偵測，零信任架構保障隱私安全。" />
+    <title>Lazy PageSpeed - 天下網頁，唯快不破</title>
+    <meta name="description" content="Lazy PageSpeed 提供多網址同時分析，支援報告分享/下載/複製、自動 CMS 偵測等功能，採用零信任架構保障隱私安全，大幅提升網站效能優化效率。" />
     <meta name="keywords" content="PageSpeed,網站效能,效能分析,Core Web Vitals,LCP,FCP,CLS,SEO優化,網站速度,行動版優化,桌面版優化,零信任架構,隱私保護" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Lazy PageSpeed - 輕鬆自在測效能">
-    <meta property="og:description" content="快速分析網站效能，支援 Mobile/Desktop 策略、Core Web Vitals 指標。零信任架構，不儲存分析資料，保障隱私安全。">
+    <meta property="og:title" content="Lazy PageSpeed - 天下網頁，唯快不破">
+    <meta property="og:description" content="提供多網址同時分析，支援報告分享/下載/複製、自動 CMS 偵測等功能，採用零信任架構保障隱私安全，大幅提升網站效能優化效率。">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://lazy-pagespeed.pages.dev/">
-    <meta property="og:image" content="https://lazy-pagespeed.pages.dev/assets/favicon.png">
+    <meta property="og:url" content="https://pagespeed.lazypro.app/">
+    <meta property="og:image" content="https://pagespeed.lazypro.app/assets/images/og-image.png">
     <meta property="og:locale" content="zh_TW">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Lazy PageSpeed - 輕鬆自在測效能">
-    <meta name="twitter:description" content="快速分析網站效能，支援 Mobile/Desktop 策略、Core Web Vitals 指標。零信任架構，不儲存分析資料，保障隱私安全。">
-    <meta name="twitter:image" content="https://lazy-pagespeed.pages.dev/assets/favicon.png">
+    <meta name="twitter:title" content="Lazy PageSpeed - 天下網頁，唯快不破">
+    <meta name="twitter:description" content="提供多網址同時分析，支援報告分享/下載/複製、自動 CMS 偵測等功能，採用零信任架構保障隱私安全，大幅提升網站效能優化效率。">
+    <meta name="twitter:image" content="https://pagespeed.lazypro.app/assets/images/og-image.png">
 
     <style>
         #initial-loader {
@@ -75,16 +76,29 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
         }
     </style>
 
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://esm.run">
+
     <link rel="icon" type="image/png" href="assets/favicon.png" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+    </noscript>
 
     <script type="importmap">
         {
         "imports": {
-          "@material/web/": "https://esm.run/@material/web/"
+          "@material/web/": "https://esm.run/@material/web/",
+          "@aws-sdk/client-s3": "https://cdn.skypack.dev/@aws-sdk/client-s3@3.645.0",
+          "@aws-sdk/s3-request-presigner": "https://cdn.skypack.dev/@aws-sdk/s3-request-presigner@3.645.0"
         }
       }
     </script>
@@ -95,7 +109,8 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
       document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
     </script>
 
-    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="assets/css/styles.css" /></noscript>
 
     <script>
         tailwind.config = {
@@ -116,11 +131,73 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
     </script>
 
     <style>
-        body,
+        /* Critical CSS - 首屏必要樣式，避免 FOUC 和 CLS */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a;
+            color: #f1f1f1;
+            font-family: '.SF NS', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+        }
+
         h1,
         h2 {
             margin: 0;
             padding: 0;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #0a0a0a;
+            z-index: 50;
+        }
+
+        main {
+            padding-top: 5rem; /* pt-20 = 80px */
+            padding-bottom: 10rem; /* pb-40 = 160px */
+        }
+
+        .fixed-bottom-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #0a0a0a;
+        }
+
+        .input-container {
+            background-color: #1a1a1a;
+            border-radius: 24px;
+        }
+
+        .stats-card,
+        .preview-card {
+            background-color: #1a1a1a;
+            border-radius: 24px;
+        }
+
+        /* Logo 避免字型重排 */
+        .font-caveat {
+            font-family: 'Caveat', cursive, system-ui;
+            min-height: 2.5rem;
+            line-height: 2.5rem;
+        }
+
+        /* Initial Loader */
+        #initial-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #0a0a0a;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         * {
@@ -185,7 +262,7 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
     <header class="fixed top-0 left-0 right-0 z-50">
         <div class="max-w-[780px] mx-auto px-4">
             <div class="flex items-center justify-center py-5">
-                <div class="font-caveat text-3xl font-medium tracking-wide bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent logo-shimmer">
+                <div class="font-caveat text-3xl font-medium tracking-wide bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent logo-shimmer" style="min-height: 2.5rem; line-height: 2.5rem;">
                     Lazy PageSpeed
                 </div>
             </div>
@@ -194,7 +271,6 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
 
     <main class="pt-20 pb-40">
         <div class="max-w-[780px] mx-auto px-4">
-            <!-- 統計區 -->
             <section class="mb-8" id="statsSection">
                 <div class="stats-card shadow-sm border border-zinc-800 px-6 py-10">
                     <table class="w-full table-fixed">
@@ -203,39 +279,40 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
                             <col style="width: 34%" />
                             <col style="width: 33%" />
                         </colgroup>
-                        <tr>
-                            <td class="border-r border-zinc-800 px-3">
-                                <div class="text-left mb-3">
-                                    <div class="text-sm text-gray-100">Total<span class="hide-on-mobile"> Pages</span></div>
-                                </div>
-                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="totalCount">
-                                    0
-                                </div>
-                            </td>
+                        <thead>
+                            <tr>
+                                <th scope="col" class="border-r border-zinc-800 px-3">
+                                    <div class="text-left mb-3">
+                                        <div class="text-sm text-gray-100">Total<span class="hide-on-mobile"> Pages</span></div>
+                                    </div>
+                                    <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="totalCount">
+                                        0
+                                    </div>
+                                </th>
 
-                            <td class="border-r border-zinc-800 px-3">
-                                <div class="text-left mb-3">
-                                    <div class="text-sm text-gray-100">Analyzing</div>
-                                </div>
-                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="analyzingCount">
-                                    0
-                                </div>
-                            </td>
+                                <th scope="col" class="border-r border-zinc-800 px-3">
+                                    <div class="text-left mb-3">
+                                        <div class="text-sm text-gray-100">Analyzing</div>
+                                    </div>
+                                    <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="analyzingCount">
+                                        0
+                                    </div>
+                                </th>
 
-                            <td class="px-3">
-                                <div class="text-left mb-3">
-                                    <div class="text-sm text-gray-100">Completed</div>
-                                </div>
-                                <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="completedCount">
-                                    0
-                                </div>
-                            </td>
-                        </tr>
+                                <th scope="col" class="px-3">
+                                    <div class="text-left mb-3">
+                                        <div class="text-sm text-gray-100">Completed</div>
+                                    </div>
+                                    <div class="text-4xl sm:text-6xl text-gray-100 sf-numbers text-center" id="completedCount">
+                                        0
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
                     </table>
                 </div>
             </section>
 
-            <!-- 報告區 -->
             <section class="mb-8" id="resultsSection">
                 <div class="preview-card shadow-sm border border-zinc-800">
                     <md-linear-progress id="tableProgress" indeterminate>
@@ -277,13 +354,13 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
                                 </div>
 
                                 <div class="mobile-actions sm:hidden flex gap-1">
-                                    <md-icon-button id="mobileNewBtn">
+                                    <md-icon-button id="mobileNewBtn" aria-label="新增分析">
                                         <md-icon>edit</md-icon>
                                     </md-icon-button>
-                                    <md-icon-button id="mobileShareBtn">
+                                    <md-icon-button id="mobileShareBtn" aria-label="分享報告">
                                         <md-icon>share</md-icon>
                                     </md-icon-button>
-                                    <md-icon-button id="mobileMoreBtn">
+                                    <md-icon-button id="mobileMoreBtn" aria-label="更多選項">
                                         <md-icon>more_vert</md-icon>
                                     </md-icon-button>
                                 </div>
@@ -319,7 +396,6 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
                                     </tr>
                                 </thead>
                                 <tbody id="resultsBody">
-                                    <!-- 動態生成 -->
                                 </tbody>
                             </table>
                         </div>
@@ -329,7 +405,6 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
         </div>
     </main>
 
-    <!-- 輸入區（固定在底部） -->
     <div class="fixed bottom-0 left-0 right-0 fixed-bottom-container">
         <div class="max-w-[780px] mx-auto px-4 py-4">
             <div class="input-container p-4 border border-zinc-800">
@@ -341,14 +416,9 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
 
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-3">
-                        <md-icon-button id="uploadBtn" class="upload-btn">
+                        <md-icon-button id="uploadBtn" class="upload-btn" aria-label="上傳 JSON 檔案">
                             <md-icon>add</md-icon>
                         </md-icon-button>
-
-                        <!-- <md-text-button class="platform-btn" disabled>
-                            <md-icon slot="icon">speed</md-icon>
-                            <span>PageSpeed</span>
-                        </md-text-button> -->
 
                         <md-text-button id="proModeBtn" class="test-mode-btn">
                             <md-icon slot="icon">bolt</md-icon>
@@ -357,7 +427,7 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
                         </md-text-button>
                     </div>
 
-                    <md-filled-icon-button id="actionBtn" class="execute-btn disabled">
+                    <md-filled-icon-button id="actionBtn" class="execute-btn disabled" aria-label="開始分析">
                         <md-icon>send</md-icon>
                     </md-filled-icon-button>
                     <md-filled-icon-button id="actionBtnStop" class="execute-btn-stop" style="display: none;">
@@ -374,10 +444,12 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
             </div>
 
             <div class="mt-2 pt-1 text-center">
-                <div class="flex justify-center items-center gap-4 text-xs text-gray-500">
-                    <span>&copy; Lazy PageSpeed</span>
-                    <a href="https://github.com/neltseng" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Github</a>
-                    <a href="https://github.com/neltseng/lazy-pagespeed/issues" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Issues</a>
+                <div class="flex justify-center items-center gap-4 text-xs text-gray-400">
+                    <span>&copy; LazyPro</span>
+                    <a href="https://docs.lazypro.app/content/pagespeed/00-overview.md" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Docs</a>
+                    <a href="https://github.com/LazyProApp/PageSpeed" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Github</a>
+                    <a href="https://github.com/LazyProApp/PageSpeed/issues" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Issues</a>
+                    <a href="https://www.facebook.com/groups/eczerogravity" target="_blank" rel="noopener noreferrer" class="footer-link hover:underline">Group</a>
                 </div>
             </div>
         </div>
@@ -406,46 +478,7 @@ Built with Claude Code, Cloudflare Workers & Pages | by Nel Tseng
 
     <!-- Report Dialog -->
     <md-dialog id="reportDialog">
-        <div slot="headline" class="flex items-center">
-            <md-icon-button value="cancel">
-                <md-icon>close</md-icon>
-            </md-icon-button>
-            <div class="flex-1 text-center">
-                <h2 class="text-lg font-semibold" id="reportUrl">Report</h2>
-            </div>
-        </div>
-
-        <div slot="content" id="reportContent" class="space-y-6">
-            <!-- 效能分數 -->
-            <section>
-                <h3 class="text-base font-semibold mb-3">Performance Score</h3>
-                <div class="text-4xl font-bold sf-numbers" id="reportScore">--</div>
-            </section>
-
-            <!-- Core Web Vitals -->
-            <section>
-                <h3 class="text-base font-semibold mb-3">Core Web Vitals</h3>
-                <div class="space-y-2" id="reportVitals">
-                    <!-- 動態生成 -->
-                </div>
-            </section>
-
-            <!-- Opportunities -->
-            <section>
-                <h3 class="text-base font-semibold mb-3">Opportunities</h3>
-                <div class="space-y-4" id="reportOpportunities">
-                    <!-- 動態生成 -->
-                </div>
-            </section>
-
-            <!-- WordPress Analysis -->
-            <section id="reportWpAnalysis" style="display: none">
-                <h3 class="text-base font-semibold mb-3">WordPress Analysis</h3>
-                <div class="space-y-3" id="reportWpContent">
-                    <!-- 動態生成 -->
-                </div>
-            </section>
-        </div>
+        <!-- Content dynamically generated by dialogs.js -->
     </md-dialog>
 
     <!-- Share Success Dialog -->
