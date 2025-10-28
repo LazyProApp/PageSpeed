@@ -21,7 +21,7 @@
   # HSTS（強制 HTTPS，有效期 1 年）
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.run; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.googleapis.com https://lazy-pagespeed-api.blackflash.workers.dev https://*.r2.cloudflarestorage.com https://*.r2.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.run https://cdn.jsdelivr.net https://www.googletagmanager.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.googleapis.com https://www.google-analytics.com https://lazy-pagespeed-api.blackflash.workers.dev https://*.r2.cloudflarestorage.com https://*.r2.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
 # 快取控制（靜態資源）
 /assets/*
