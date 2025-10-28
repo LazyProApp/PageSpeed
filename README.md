@@ -34,7 +34,11 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
                                    單頁分析                  系統性總結
 ```
 
+## 關於
+
 **線上使用**：https://pagespeed.lazypro.app
+
+**使用文件**：https://docs.lazypro.app/content/pagespeed/00-overview.md
 
 **隱私說明**：
 - 免費版（3 個網址）使用 Cloudflare Workers 轉發 API 請求
@@ -42,7 +46,6 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 - 報告分享功能使用你自己的 Cloudflare R2（選用）
 - 不記錄、不儲存任何分析資料
 
-**[使用文件](https://docs.lazypro.app/content/pagespeed/00-overview.md)**
 
 ## 授權
 
