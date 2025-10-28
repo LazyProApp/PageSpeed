@@ -4,7 +4,7 @@
 
 ![Lazy PageSpeed](https://pagespeed.lazypro.app/assets/images/og-image.png)
 
-Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極少的時間就能整理好大量網址的分析報告，再交由 AI 整理分析，取代手動操作與整理，用最短的時間取得全面性的完整分析報告。
+Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極少的時間就能整理好大量網址的分析報告，方便轉交給 AI 整理分析，取代手動操作與整理，用最短的時間取得全面性的完整分析報告。
 
 ## 功能特色
 
