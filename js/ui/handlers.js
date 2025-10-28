@@ -7,6 +7,7 @@
  */
 
 import { EVENTS } from '../core/events.js';
+import { logger } from '../utils/logger.js';
 
 export class UIHandlers {
   constructor(eventBus, dialogs) {
@@ -466,8 +467,7 @@ export class UIHandlers {
 
   updateProgress(data) {
     const { current, total, completed, failed } = data;
-    const progressText = `Processing: ${current}/${total} (${completed} completed, ${failed} failed)`;
-    console.log(progressText);
+    logger.debug(`Processing: ${current}/${total} (${completed} completed, ${failed} failed)`);
   }
 
   hideProgress() {
@@ -577,7 +577,7 @@ export class UIHandlers {
   }
 
   handleDialogOpened(data) {
-    if (!data || !data.dialogId) return;
+    if (!data?.dialogId) return;
 
     if (data.dialogId === 'addUrlDialog' && data.data?.mode === 'edit') {
       this.handleEditURLDialog(data.data.url);

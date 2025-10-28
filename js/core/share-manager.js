@@ -1,6 +1,6 @@
 /**
  * ShareManager
- * Rules: Manage report upload and share snapshot creation
+ * Rules: Manage share snapshot creation, support hash and URL formats
  */
 
 import { logger } from '../utils/logger.js';
@@ -10,42 +10,31 @@ export class ShareManager {
     this.eventBus = eventBus;
     this.workersUrl = config.api.workersUrl;
     this.uploadedReportIds = {};
+    this.oldShareId = null;
   }
 
-  async uploadReport(url, reportData) {
-    const hash = await this.hashReport(reportData);
-
-    // Skip if already uploaded (same content)
-    if (this.uploadedReportIds[url] === hash) {
-      logger.info('Report unchanged, skip upload', { url, hash });
-      return hash;
-    }
-
-    const compressed = await this.compressReport(reportData);
-    const result = await this.sendToWorkers(url, hash, compressed);
-
-    this.uploadedReportIds[url] = hash;
-    logger.info('Report uploaded', { url, hash, status: result.status });
-
-    return hash;
+  setOldShareId(shareId) {
+    this.oldShareId = shareId;
+    logger.info('Set old share ID', { oldShareId: shareId });
   }
 
-  async sendToWorkers(url, hash, compressed) {
-    const formData = new FormData();
-    formData.append('reportId', hash);
-    formData.append('url', url);
-    formData.append('report', compressed, `${hash}.json.gz`);
+  setReportId(url, reportId) {
+    this.uploadedReportIds[url] = { type: 'hash', value: reportId };
+    logger.debug('Report ID saved', { url, reportId });
+  }
 
-    const response = await fetch(`${this.workersUrl}/api/upload-report`, {
-      method: 'POST',
-      body: formData
-    });
+  setReportIds(url, reportIds) {
+    this.uploadedReportIds[url] = {
+      type: 'hash-pair',
+      mobile: reportIds.mobile,
+      desktop: reportIds.desktop
+    };
+    logger.debug('Report IDs saved', { url, reportIds });
+  }
 
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.status}`);
-    }
-
-    return response.json();
+  setReportUrl(url, presignedUrl) {
+    this.uploadedReportIds[url] = { type: 'url', value: presignedUrl };
+    logger.debug('Report URL saved', { url });
   }
 
   async handleShare(urls, config) {
@@ -83,12 +72,23 @@ export class ShareManager {
   }
 
   async createShareSnapshot(urls, config) {
+    const safeConfig = {
+      strategy: config.strategy || 'mobile'
+    };
+
+    logger.info('Creating share snapshot', {
+      urlsCount: urls.length,
+      reportIdsCount: Object.keys(this.uploadedReportIds).length,
+      reportIds: this.uploadedReportIds
+    });
+
     const response = await fetch(`${this.workersUrl}/api/share`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         urls,
-        config,
+        config: safeConfig,
+        oldShareId: this.oldShareId,
         reportIds: this.uploadedReportIds
       })
     });
@@ -98,6 +98,9 @@ export class ShareManager {
     }
 
     const { shareId } = await response.json();
+
+    this.oldShareId = null;
+
     return shareId;
   }
 
@@ -113,22 +116,6 @@ export class ShareManager {
     return hashHex.substring(0, 16);
   }
 
-  async compressReport(reportData) {
-    const jsonString = JSON.stringify(reportData);
-    const encoder = new TextEncoder();
-    const jsonBytes = encoder.encode(jsonString);
-
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(jsonBytes);
-        controller.close();
-      }
-    });
-
-    const compressed = stream.pipeThrough(new CompressionStream('gzip'));
-    return await new Response(compressed).blob();
-  }
-
   loadFromShare(shareData) {
     this.uploadedReportIds = shareData.reportIds || {};
     logger.info('Loaded report IDs from share', {
@@ -138,6 +125,7 @@ export class ShareManager {
 
   clear() {
     this.uploadedReportIds = {};
-    logger.info('Cleared report IDs');
+    this.oldShareId = null;
+    logger.info('Cleared report IDs and old share ID');
   }
 }

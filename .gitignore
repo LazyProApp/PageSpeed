@@ -1,77 +1,46 @@
-# Dependencies
-node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# macOS
+# System Files
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Cloudflare Workers
-workers/.wrangler/
-workers/wrangler.toml.backup
-.wrangler/
-.dev.vars
-
-# Build outputs
-dist/
-.output/
-.vercel/
-.netlify/
-
-# IDE
-.vscode/
-.idea/
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
+# Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Node
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-# Testing
-coverage/
-.nyc_output/
+# Environment
+.env
+.env.local
+.env.*.local
 
-# Temporary files
+# Test & Development
+tst/
+demo/
+
+# Workers (backend only, not needed for open source)
+workers/
+
+# Temporary & Backup
+*.log
 *.tmp
-*.temp
-.cache/
-
-# Backup files
 *.backup
-*.bak
-*.old
-
-# Local test data (排除 demo 和 tst 目錄)
-/demo/
-/tst/
-
-# User uploaded files (如果有的話)
-uploads/
-user-data/
-
-# Development & Analysis tools
-sonar-project.properties
+*.backup-*
 *.before-*
-download-sonar-issues.js
+sonar-project.properties
+.prettierrc
 
-# Prettier config (if using project-wide settings)
-# .prettierrc
+# Build
+dist/
+build/
+
+# Cloudflare
+.wrangler/
+wrangler.toml.local

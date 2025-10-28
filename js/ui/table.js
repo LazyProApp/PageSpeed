@@ -295,14 +295,9 @@ export class Table {
 
     rows.forEach((row) => {
       const status = row.dataset.status;
+      const shouldShow = filter === 'all' || filter === status;
 
-      if (filter === 'all') {
-        row.style.display = '';
-        visibleRowCount++;
-      } else if (filter === 'success' && status === 'success') {
-        row.style.display = '';
-        visibleRowCount++;
-      } else if (filter === 'failed' && status === 'failed') {
+      if (shouldShow) {
         row.style.display = '';
         visibleRowCount++;
       } else {
@@ -426,7 +421,7 @@ export class Table {
       </div>`;
 
     if (status === 'success') {
-      return `${reanalyzeBtn}${openBtn}${downloadReportBtn}${deleteBtn}${viewReportBtn}`;
+      return `${viewReportBtn}${reanalyzeBtn}${downloadReportBtn}${openBtn}${deleteBtn}`;
     } else if (status === 'pending' || status === 'failed') {
       return `${editBtn}${deleteBtn}${openBtn}${analyzeBtn}`;
     } else {
@@ -464,7 +459,7 @@ export class Table {
   }
 
   formatScore(score) {
-    return score != null ? Math.round(score * 100) : '-';
+    return score != null ? Math.round(score * 100).toString() : '-';
   }
 
   renderScoreItem(item, scores) {

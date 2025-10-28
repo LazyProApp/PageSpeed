@@ -48,7 +48,7 @@ export class PageSpeedAPI {
     });
 
     if (!response.ok) {
-      throw this.createFetchError(response);
+      throw await this.createFetchError(response);
     }
 
     return await response.json();
@@ -59,6 +59,10 @@ export class PageSpeedAPI {
    */
   async createFetchError(response) {
     const errorData = await response.json().catch(() => ({}));
+
+    if (response.status === 429 && errorData.error === 'QUOTA_EXCEEDED') {
+      return new Error('今日免費額度已達上限');
+    }
 
     if (response.status === 429) {
       return new Error(

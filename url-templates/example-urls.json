@@ -2,6 +2,18 @@
   "credentials": {
     "api_key": "YOUR_PAGESPEED_API_KEY"
   },
+  "share_report": {
+    "upload": false,
+    "r2": {
+      "accountId": "YOUR_CLOUDFLARE_ACCOUNT_ID",
+      "accessKeyId": "YOUR_R2_ACCESS_KEY_ID",
+      "secretAccessKey": "YOUR_R2_SECRET_ACCESS_KEY",
+      "bucketName": "YOUR_R2_BUCKET_NAME",
+      "autoDelete": true,
+      "deleteDays": 7,
+      "shareExpireDays": 7
+    }
+  },
   "urls": [
     "https://www.google.com",
     "https://www.cloudflare.com",

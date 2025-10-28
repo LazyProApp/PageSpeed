@@ -100,69 +100,141 @@ class App {
 
   async checkShareParameter() {
     const urlParams = new URLSearchParams(window.location.search);
-    const shareId = urlParams.get('share');
+    let shareId = urlParams.get('share');
 
-    if (shareId) {
-      logger.info('Loading share', { shareId });
+    if (!shareId) return;
 
-      try {
-        const response = await fetch(
-          `${config.api.workersUrl}/share?id=${shareId}`
-        );
+    shareId = shareId.split('?')[0].split('&')[0];
+    logger.info('Loading share', { shareId });
 
-        if (!response.ok) {
-          throw new Error(`Failed to load share: ${response.status}`);
-        }
+    const response = await fetch(
+      `${config.api.workersUrl}/share?id=${shareId}`
+    );
 
-        const shareData = await response.json();
+    if (!response.ok) {
+      logger.error('Failed to load share', { shareId, status: response.status });
+      return;
+    }
 
-        // Clear existing data before loading share
-        this.modules.dataEngine.clearAll();
-        this.modules.shareManager.clear();
+    const shareData = await response.json();
 
-        // Load URLs into data engine
-        for (const url of shareData.urls) {
-          this.modules.dataEngine.addURL(url);
-        }
+    logger.info('Share data received', {
+      urlsCount: shareData.urls?.length || 0,
+      reportsCount: Object.keys(shareData.reports || {}).length
+    });
 
-        // Load reports (按照 URLs 順序，不是 reports 的順序)
-        for (const url of shareData.urls) {
-          const reports = shareData.reports[url];
-          if (!reports) continue;
+    this.modules.dataEngine.clearAll();
+    this.modules.shareManager.clear();
 
-          if (reports.mobile) {
-            this.modules.dataEngine.updateURLStatus(url, 'success', {
-              strategy: 'mobile',
-              report: reports.mobile
-            });
-          }
-          if (reports.desktop) {
-            this.modules.dataEngine.updateURLStatus(url, 'success', {
-              strategy: 'desktop',
-              report: reports.desktop
-            });
-          }
-        }
+    for (const url of shareData.urls) {
+      this.modules.dataEngine.addURL(url);
+    }
 
-        // Load report IDs into shareManager
-        const reportIds = {};
-        for (const [url, reports] of Object.entries(shareData.reports)) {
-          // Calculate hash from reports (simplified)
-          const hash = await this.modules.shareManager.hashReport(reports);
-          reportIds[url] = hash;
-        }
-        this.modules.shareManager.loadFromShare({ reportIds });
+    await this._loadShareReports(shareData);
+    this._loadShareReportIds(shareData);
+    this.modules.shareManager.setOldShareId(shareId);
 
-        logger.info('Share loaded successfully', {
-          urls: shareData.urls.length
-        });
-      } catch (error) {
-        logger.error('Failed to load share', error);
-        this.modules.eventBus.emit('SYSTEM.ALERT_REQUESTED', {
-          message: `載入分享失敗: ${error.message}`
-        });
+    logger.info('Share loaded successfully', { urls: shareData.urls.length });
+  }
+
+  async _loadShareReports(shareData) {
+    for (const url of shareData.urls) {
+      const reportData = shareData.reports[url];
+
+      if (!reportData) continue;
+
+      const reports = await this._fetchReportByType(url, reportData);
+
+      if (reports) {
+        this._updateReportsToEngine(url, reports);
       }
     }
+  }
+
+  async _fetchReportByType(url, reportData) {
+    if (reportData.type === 'presigned_url') {
+      return await this._fetchPresignedReport(url, reportData.url);
+    }
+
+    if (reportData.type === 'embedded') {
+      logger.info('Loading embedded report', { url });
+      return reportData.data;
+    }
+
+    logger.error('Unknown report type', { url, type: reportData.type });
+    return null;
+  }
+
+  async _fetchPresignedReport(url, presignedUrl) {
+    logger.info('Loading from presigned URL', { url, presignedUrl });
+
+    const response = await fetch(presignedUrl);
+
+    if (!response.ok) {
+      logger.error('Presigned URL fetch failed', { url, status: response.status });
+      return null;
+    }
+
+    if (typeof DecompressionStream === 'undefined' || !response.body) {
+      logger.warn('DecompressionStream not supported, using fallback');
+      const arrayBuffer = await response.arrayBuffer();
+      const decompressed = await this._decompressGzipFallback(arrayBuffer);
+      return JSON.parse(decompressed);
+    }
+
+    const decompressed = response.body.pipeThrough(
+      new DecompressionStream('gzip')
+    );
+    const reportJson = await new Response(decompressed).text();
+    const reports = JSON.parse(reportJson);
+
+    logger.info('Presigned URL loaded successfully', { url });
+    return reports;
+  }
+
+  async _decompressGzipFallback(arrayBuffer) {
+    if (typeof pako !== 'undefined') {
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const decompressed = pako.ungzip(uint8Array, { to: 'string' });
+      return decompressed;
+    }
+
+    logger.error('DecompressionStream not supported and no fallback available');
+    return null;
+  }
+
+  _updateReportsToEngine(url, reports) {
+    if (reports.mobile) {
+      this.modules.dataEngine.updateURLStatus(url, 'success', {
+        strategy: 'mobile',
+        report: reports.mobile
+      });
+    }
+
+    if (reports.desktop) {
+      this.modules.dataEngine.updateURLStatus(url, 'success', {
+        strategy: 'desktop',
+        report: reports.desktop
+      });
+    }
+  }
+
+  _loadShareReportIds(shareData) {
+    const reportIds = {};
+
+    for (const [url, reportData] of Object.entries(shareData.reports || {})) {
+      if (reportData.type === 'presigned_url') {
+        reportIds[url] = { type: 'url', value: reportData.url };
+      } else if (reportData.type === 'embedded') {
+        reportIds[url] = { type: 'embedded' };
+      }
+    }
+
+    this.modules.shareManager.loadFromShare({ reportIds });
+
+    logger.info('Share report IDs loaded', {
+      count: Object.keys(reportIds).length
+    });
   }
 
   removeInitialLoader() {
@@ -201,13 +273,10 @@ class App {
 
     logger.info('Destroying app...');
 
-    // Destroy UI modules first
     if (this.modules.uiHandlers) this.modules.uiHandlers.destroy();
     if (this.modules.dialogs) this.modules.dialogs.destroy();
     if (this.modules.table) this.modules.table.destroy();
     if (this.modules.statistics) this.modules.statistics.destroy();
-
-    // Destroy core modules
     if (this.modules.controller) this.modules.controller.destroy();
     if (this.modules.batchProcessor) this.modules.batchProcessor.destroy();
 
@@ -229,14 +298,12 @@ window.addEventListener('error', (event) => {
   });
 });
 
-// Global unhandled rejection handler
 window.addEventListener('unhandledrejection', (event) => {
   logger.error('Unhandled promise rejection', {
     reason: event.reason
   });
 });
 
-// Initialize app when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.app = new App();
@@ -247,5 +314,4 @@ if (document.readyState === 'loading') {
   window.app.init();
 }
 
-// Export for debugging
 export { App };

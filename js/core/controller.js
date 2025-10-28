@@ -14,7 +14,8 @@ export class Controller {
     batchProcessor,
     exportManager,
     sitemapParser,
-    shareManager
+    shareManager,
+    r2Uploader = null
   ) {
     this.eventBus = eventBus;
     this.dataEngine = dataEngine;
@@ -22,6 +23,7 @@ export class Controller {
     this.exportManager = exportManager;
     this.sitemapParser = sitemapParser;
     this.shareManager = shareManager;
+    this.r2Uploader = r2Uploader;
     this.reportFormatter = new ReportFormatter();
 
     this.state = {
@@ -35,6 +37,11 @@ export class Controller {
     }, 100);
   }
 
+  setR2Uploader(r2Uploader) {
+    this.r2Uploader = r2Uploader;
+    logger.info('R2Uploader set');
+  }
+
   setState(key, value) {
     this.state[key] = value;
   }
@@ -46,7 +53,6 @@ export class Controller {
     const hasDataSourceInput = Boolean(dataSourceValue?.trim());
     const hasAnalyzingItem = stats.analyzing > 0;
     const hasPendingItem = stats.pending > 0;
-    const hasFailedItem = stats.failed > 0;
 
     const showSend = !hasTableData && !isProcessing;
     const showStart = hasTableData && !isProcessing;
@@ -205,7 +211,7 @@ export class Controller {
   }
 
   handleReanalyzeURL(data) {
-    if (!data || !data.url) {
+    if (!data?.url) {
       logger.warn('REANALYZE_URL: missing URL parameter');
       return;
     }
@@ -222,12 +228,13 @@ export class Controller {
 
     if (!config.proMode) {
       const allPages = this.dataEngine.getAllPages();
-      const urlIndex = allPages.findIndex(p => p.url === url);
+      const urlIndex = allPages.findIndex((p) => p.url === url);
 
       if (urlIndex >= 3) {
         this.eventBus.emit(EVENTS.SYSTEM.ALERT_REQUESTED, {
           title: 'URL 超過上限',
-          message: '分析超過 3 組網址需切換 Pro Mode ( 使用 Google PageSpeed API Key )'
+          message:
+            '分析超過 3 組網址需切換 Pro Mode ( 使用 Google PageSpeed API Key )'
         });
         return;
       }
@@ -267,7 +274,7 @@ export class Controller {
   }
 
   handleToggleStrategy(data) {
-    if (!data || !data.strategy) {
+    if (!data?.strategy) {
       logger.warn('TOGGLE_STRATEGY: missing strategy parameter');
       return;
     }
@@ -306,18 +313,19 @@ export class Controller {
     if (!config.proMode && allPages.length > 3) {
       this.eventBus.emit(EVENTS.SYSTEM.ALERT_REQUESTED, {
         title: 'URL 超過上限',
-        message: '分析超過 3 組網址需切換 Pro Mode ( 使用 Google PageSpeed API Key )'
+        message:
+          '分析超過 3 組網址需切換 Pro Mode ( 使用 Google PageSpeed API Key )'
       });
       return;
     }
 
     const urlsToAnalyze = allPages
-      .filter(page => page.status === 'pending' || page.status === 'failed')
-      .map(page => page.url);
+      .filter((page) => page.status === 'pending' || page.status === 'failed')
+      .map((page) => page.url);
 
     if (urlsToAnalyze.length === 0) {
       // 檢查是否有已完成的網址
-      const successPages = allPages.filter(page => page.status === 'success');
+      const successPages = allPages.filter((page) => page.status === 'success');
 
       if (successPages.length > 0) {
         // 有已完成的網址，詢問是否重新分析
@@ -327,14 +335,14 @@ export class Controller {
           icon: 'analytics',
           onConfirm: () => {
             // 將所有 success 狀態重設為 pending，並清空舊報告資料
-            successPages.forEach(page => {
+            successPages.forEach((page) => {
               this.dataEngine.updateURLStatus(page.url, 'pending', {
                 clearReports: true
               });
             });
 
             // 重新開始分析
-            const urls = successPages.map(p => p.url);
+            const urls = successPages.map((p) => p.url);
             if (this.batchProcessor) {
               this.batchProcessor.start(config, urls);
             }
@@ -391,7 +399,7 @@ export class Controller {
   }
 
   async handleImportData(data) {
-    if (!data || typeof data !== 'object' || !data.jsonData) {
+    if (!data?.jsonData) {
       logger.warn('IMPORT_DATA: invalid data payload');
       return;
     }
@@ -401,15 +409,46 @@ export class Controller {
       return;
     }
 
-    try {
-      const result = await this.exportManager.importFromJSON(data.jsonData);
-      logger.debug('Import successful', result);
-    } catch (error) {
-      this.eventBus.emit(EVENTS.SYSTEM.ALERT_REQUESTED, {
-        title: '匯入失敗',
-        message: error.message
-      });
+    const result = await this.exportManager.importFromJSON(data.jsonData);
+    logger.debug('Import successful', result);
+
+    const config = this.dataEngine.getConfig();
+
+    if (config.shareReportUpload && config.r2Config) {
+      this.testR2InBackground(config.r2Config);
     }
+  }
+
+  async testR2InBackground(r2Config) {
+    logger.info('Testing R2 connection', {
+      accountId: r2Config.accountId?.substring(0, 8),
+      bucketName: r2Config.bucketName
+    });
+
+    const { R2Uploader } = await import('../modules/r2-uploader.js');
+    const uploader = new R2Uploader(r2Config);
+    const result = await uploader.testConnection();
+
+    if (result.success) {
+      this.setR2Uploader(uploader);
+      logger.info('R2 connection test succeeded');
+      return;
+    }
+
+    logger.error('R2 connection test failed', { error: result.error });
+
+    let errorDetail = '';
+    if (result.error?.includes('NetworkError')) {
+      errorDetail = '網路錯誤，請檢查 CORS 設定';
+    } else if (result.error?.includes('403') || result.error?.includes('401')) {
+      errorDetail = '憑證錯誤，請檢查 Access Key';
+    } else if (result.error?.includes('404')) {
+      errorDetail = 'Bucket 不存在';
+    } else if (result.error) {
+      errorDetail = result.error;
+    }
+
+    logger.warn('R2 upload disabled due to connection failure', { errorDetail });
   }
 
   async handleParseSitemap(data) {
@@ -447,9 +486,13 @@ export class Controller {
         }
       });
 
-      const message = !config.proMode && stats.total + added >= 3
-        ? `已加入 ${added} 個網址，${skipped} 個超過上限（非 Pro Mode 限制 3 個）`
-        : `已加入 ${added} 個網址${skipped > 0 ? `，跳過 ${skipped} 個重複` : ''}`;
+      let message;
+      if (!config.proMode && stats.total + added >= 3) {
+        message = `已加入 ${added} 個網址，${skipped} 個超過上限（非 Pro Mode 限制 3 個）`;
+      } else {
+        const duplicateText = skipped > 0 ? `，跳過 ${skipped} 個重複` : '';
+        message = `已加入 ${added} 個網址${duplicateText}`;
+      }
 
       this.eventBus.emit(EVENTS.SYSTEM.ALERT_REQUESTED, {
         title: 'Sitemap 解析完成',
@@ -519,32 +562,100 @@ export class Controller {
 
   isValidURL(url) {
     try {
-      new URL(url);
-      return true;
+      const parsed = new URL(url);
+
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return false;
+      }
+
+      const hostname = parsed.hostname.toLowerCase();
+
+      if (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '::1' ||
+        hostname === '[::1]'
+      ) {
+        return false;
+      }
+
+      const privateIPv4Patterns = [
+        /^10\./,
+        /^172\.(1[6-9]|2\d|3[01])\./,
+        /^192\.168\./
+      ];
+
+      if (privateIPv4Patterns.some((pattern) => pattern.test(hostname))) {
+        return false;
+      }
+
+      const privateIPv6Patterns = [
+        /^fc00:/i,
+        /^fd00:/i,
+        /^\[?fc00:/i,
+        /^\[?fd00:/i
+      ];
+
+      return !privateIPv6Patterns.some((pattern) => pattern.test(hostname));
     } catch {
       return false;
     }
   }
 
   async handleAnalysisCompleted(data) {
-    if (!data || !data.url || !data.reports) {
+    if (!data?.url || !data?.reports) {
       logger.warn('ANALYSIS_COMPLETED: invalid data payload');
       return;
     }
 
     logger.debug('Analysis completed', { url: data.url });
 
-    if (this.shareManager) {
-      try {
-        await this.shareManager.uploadReport(data.url, data.reports);
-        logger.debug('Report uploaded successfully', { url: data.url });
-      } catch (error) {
-        logger.error('Failed to upload report', {
-          url: data.url,
-          error: error.message
-        });
-      }
+    const config = this.dataEngine.getConfig();
+
+    if (config.proMode && config.shareReportUpload && this.r2Uploader) {
+      await this._uploadToUserR2(data.url, data.reports);
+    } else if (!config.proMode && data.reportIds) {
+      this._saveReportIdsForBasicMode(data.url, data.reportIds);
     }
+  }
+
+  async _uploadToUserR2(url, reports) {
+    logger.info('Starting R2 upload', { url });
+
+    const reportId = await this.r2Uploader.calculateReportId(reports);
+    const presignedUrl = await this.r2Uploader.uploadReport(
+      url,
+      reportId,
+      reports
+    );
+
+    this.shareManager.setReportUrl(url, presignedUrl);
+    logger.info('Report uploaded to user R2', {
+      url,
+      reportId: reportId.substring(0, 8)
+    });
+  }
+
+  _saveReportIdsForBasicMode(url, reportIds) {
+    this.shareManager.setReportIds(url, reportIds);
+
+    logger.debug('Report IDs saved for sharing', {
+      url,
+      mobile: reportIds.mobile?.substring(0, 8),
+      desktop: reportIds.desktop?.substring(0, 8)
+    });
+  }
+
+  async calculateReportId(reportData) {
+    const jsonString = JSON.stringify(reportData);
+    const encoder = new TextEncoder();
+    const data = encoder.encode(jsonString);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    return hashHex.substring(0, 16);
   }
 
   async handleCreateShare() {

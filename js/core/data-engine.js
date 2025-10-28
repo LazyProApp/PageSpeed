@@ -123,6 +123,11 @@ export class DataEngine {
       page.reports.desktop = data.reports.desktop || null;
     }
 
+    if (data.reportIds) {
+      page.reportIds = data.reportIds;
+      logger.debug('Page reportIds saved', { url, reportIds: data.reportIds });
+    }
+
     if (data.error) {
       page.error = data.error;
     }
@@ -143,7 +148,8 @@ export class DataEngine {
       this.eventBus.emit(EVENTS.DOMAIN.ANALYSIS_COMPLETED, {
         url,
         status,
-        reports: page.reports
+        reports: page.reports,
+        reportIds: page.reportIds
       });
     } else if (status === 'failed') {
       this.eventBus.emit(EVENTS.DOMAIN.ANALYSIS_FAILED, {

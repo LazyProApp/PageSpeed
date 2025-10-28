@@ -3,9 +3,11 @@
  * Rules: Format PageSpeed reports to Markdown, no DOM manipulation, pure data transformation
  */
 
+import { classifyPerformanceAudits, classifyGenericAudits } from '../ui/report/audit-classifier.js';
+
 export class ReportFormatter {
   formatFullReport(page) {
-    if (!page || !page.reports) {
+    if (!page?.reports) {
       return '';
     }
 
@@ -73,7 +75,7 @@ export class ReportFormatter {
     };
 
     return order
-      .map(key => {
+      .map((key) => {
         const category = categories[key];
         if (!category) return '';
         const score = Math.round((category.score || 0) * 100);
@@ -91,7 +93,7 @@ export class ReportFormatter {
   }
 
   buildCoreWebVitals(mobile, desktop) {
-    let md = '## 🎯 核心網頁指標 (Core Web Vitals)\n\n';
+    let md = '## 🎯 網站體驗核心指標評估 (Core Web Vitals)\n\n';
 
     if (mobile?.loadingExperience) {
       md += '### Mobile\n';
@@ -122,15 +124,27 @@ export class ReportFormatter {
     const metrics = loadingExperience.metrics;
     const lines = [];
 
-    Object.keys(metrics).forEach(key => {
+    Object.keys(metrics).forEach((key) => {
       const config = this.getCruxMetricConfig(key);
       const value = metrics[key].percentile;
       const level = this.getCruxLevel(value, config);
       const formattedValue = this.formatCruxValue(key, value);
-      const emoji = level === 'good' ? '🟢' : level === 'needs-improvement' ? '🟡' : '🔴';
-      const levelText = level === 'good' ? '良好' : level === 'needs-improvement' ? '需改善' : '差';
 
-      lines.push(`- **${config.abbr}** (${config.en}): ${formattedValue} ${emoji} ${levelText}`);
+      let emoji, levelText;
+      if (level === 'good') {
+        emoji = '🟢';
+        levelText = '良好';
+      } else if (level === 'needs-improvement') {
+        emoji = '🟡';
+        levelText = '需改善';
+      } else {
+        emoji = '🔴';
+        levelText = '差';
+      }
+
+      lines.push(
+        `- **${config.abbr}** (${config.en}): ${formattedValue} ${emoji} ${levelText}`
+      );
     });
 
     return lines.join('\n');
@@ -195,7 +209,7 @@ export class ReportFormatter {
     let md = `# ${icon} ${strategyName} 分析報告\n\n`;
 
     const order = ['performance', 'accessibility', 'best-practices', 'seo'];
-    order.forEach(key => {
+    order.forEach((key) => {
       if (categories[key]) {
         md += this.buildCategorySection(key, categories[key], audits);
       }
@@ -204,7 +218,94 @@ export class ReportFormatter {
     return md;
   }
 
-  buildCategorySection(categoryKey, category, audits) {
+  getTotalSavings(metricSavings) {
+    if (!metricSavings) return 0;
+    return Object.values(metricSavings).reduce(
+      (sum, val) => sum + (val || 0),
+      0
+    );
+  }
+
+  getTotalBytes(details) {
+    if (!details?.items) return 0;
+    const items = Array.isArray(details.items) ? details.items : [];
+    return items.reduce((sum, item) => sum + (item.wastedBytes || 0), 0);
+  }
+
+  buildAuditTags(audit) {
+    const metrics = [];
+    if (audit.acronym) {
+      metrics.push(audit.acronym);
+    }
+    if (audit.metricSavings) {
+      Object.keys(audit.metricSavings).forEach((key) => {
+        if (!metrics.includes(key)) {
+          metrics.push(key);
+        }
+      });
+    }
+
+    const metricTags = metrics.length > 0 ? metrics.join(', ') : '';
+    const unscoredTag = audit.weight === 0 ? '未計分' : '';
+
+    return [metricTags, unscoredTag].filter(Boolean).join(', ');
+  }
+
+  formatInsightToMarkdown(insight, index) {
+    const totalSavings = this.getTotalSavings(insight.metricSavings);
+    const displayValue = insight.displayValue || `可省下 ${totalSavings} 毫秒`;
+    const resourcesCount = insight.details?.items?.length || 0;
+
+    const metricDetails = Object.entries(insight.metricSavings || {})
+      .filter(([_, value]) => value > 0)
+      .map(([key, value]) => `${key}: ${value} ms`)
+      .join(' | ');
+
+    const parts = [displayValue];
+    if (resourcesCount > 0) {
+      parts.push(`${resourcesCount} 個資源`);
+    }
+    if (metricDetails) {
+      parts.push(metricDetails);
+    }
+
+    const allTags = this.buildAuditTags(insight);
+    if (allTags) {
+      parts.push(allTags);
+    }
+
+    const cleanTitle = this.stripHtml(insight.title)
+      .replace(/\uFFFD/g, '')
+      .replace(/`([^`]+)`/g, '$1');
+    const cleanDescription = insight.description
+      ? this.stripHtml(insight.description)
+          .replace(/\uFFFD/g, '')
+          .replace(/`([^`]+)`/g, '$1')
+      : '';
+
+    let md = `#### ${index}. ${cleanTitle}\n`;
+    md += `${parts.join(' | ')}\n`;
+
+    if (cleanDescription) {
+      md += `\n**說明**：\n${cleanDescription}\n`;
+    }
+
+    md += this.formatAuditResources(insight.details);
+    md += '\n';
+
+    return md;
+  }
+
+  buildCategorySection(categoryKey, category, audits, excludePassed = false) {
+    // Route to specialized renderer based on category
+    if (categoryKey === 'performance') {
+      return this.renderPerformanceCategory(categoryKey, category, audits, excludePassed);
+    } else {
+      return this.renderGenericCategory(categoryKey, category, audits, excludePassed);
+    }
+  }
+
+  renderPerformanceCategory(categoryKey, category, audits, excludePassed = false) {
     const labels = {
       performance: 'Performance',
       accessibility: 'Accessibility',
@@ -212,35 +313,39 @@ export class ReportFormatter {
       seo: 'SEO'
     };
 
-    const allAudits = category.auditRefs.map(ref => ({
-      ...audits[ref.id],
-      id: ref.id,
-      weight: ref.weight
-    }));
+    // 使用共用分類邏輯
+    const { insights: rawInsights, diagnostics, passed: passedAudits } = classifyPerformanceAudits(category, audits);
 
-    const passedAudits = allAudits.filter(audit =>
-      audit?.score !== null &&
-      audit.score === 1 &&
-      audit.scoreDisplayMode !== 'informative'
-    );
+    // Insights 需要依 savings 排序
+    const insights = rawInsights.sort((a, b) => {
+      const aSavings = this.getTotalSavings(a.metricSavings);
+      const bSavings = this.getTotalSavings(b.metricSavings);
+      return bSavings - aSavings;
+    });
 
-    const failedAudits = allAudits.filter(audit =>
-      audit?.score !== null &&
-      audit.score < 1 &&
-      audit.scoreDisplayMode !== 'informative'
-    );
+    const failedAudits = diagnostics;
 
     let md = `## ${labels[categoryKey]}\n\n`;
 
-    if (passedAudits.length > 0) {
-      md += `### ✅ 通過項目 (${passedAudits.length} 項)\n`;
-      md += this.formatPassedAudits(passedAudits);
+    if (categoryKey === 'performance' && insights.length > 0) {
+      md += `### 🔸 深入分析 (INSIGHTS) (${insights.length} 項)\n\n`;
+      md += `依節省時間排序，優先處理影響最大的項目\n\n`;
+      insights.forEach((insight, index) => {
+        md += this.formatInsightToMarkdown(insight, index + 1);
+      });
       md += '\n';
     }
 
     if (failedAudits.length > 0) {
-      md += `### ⚠️ 需要改善 (${failedAudits.length} 項)\n\n`;
+      md += `### 🔸 診斷 (DIAGNOSTICS) (${failedAudits.length} 項)\n\n`;
       md += this.formatFailedAudits(failedAudits);
+      md += '\n';
+    }
+
+    if (!excludePassed && passedAudits.length > 0) {
+      md += `### 🟢 通過稽核項目 (PASSED AUDITS) (${passedAudits.length} 項)\n`;
+      md += this.formatPassedAudits(passedAudits);
+      md += '\n';
     }
 
     md += '---\n\n';
@@ -249,25 +354,62 @@ export class ReportFormatter {
 
   formatPassedAudits(audits) {
     return audits
-      .map((audit, index) => {
-        const score = Math.round((audit.score || 0) * 100);
-        const title = this.stripHtml(audit.title).replace(/\uFFFD/g, '').replace(/`([^`]+)`/g, '$1');
-        return `${index + 1}. ${title} (Score: ${score})`;
-      })
+      .map((audit, index) => this.formatPassedAuditItem(audit, index + 1))
       .join('\n');
   }
 
+  formatPassedAuditItem(audit, index) {
+    const score = Math.round((audit.score || 0) * 100);
+    const displayValue = audit.displayValue || '';
+    const resourcesCount = audit.details?.items?.length || 0;
+
+    const title = this.stripHtml(audit.title)
+      .replace(/\uFFFD/g, '')
+      .replace(/`([^`]+)`/g, '$1');
+
+    const parts = [`Score: ${score}`];
+
+    if (displayValue && displayValue !== '0') {
+      parts.push(displayValue);
+    }
+
+    if (resourcesCount > 0) {
+      parts.push(`${resourcesCount} 個資源`);
+    }
+
+    const allTags = this.buildAuditTags(audit);
+    if (allTags) {
+      parts.push(allTags);
+    }
+
+    const info = parts.length > 1 ? ` | ${parts.join(' | ')}` : ` (${parts[0]})`;
+    return `${index}. ${title}${info}`;
+  }
+
   formatFailedAudits(audits) {
-    return audits.map((audit, index) => this.formatAuditToMarkdown(audit, index + 1)).join('\n');
+    return audits
+      .map((audit, index) => this.formatAuditToMarkdown(audit, index + 1))
+      .join('\n');
   }
 
   formatAuditToMarkdown(audit, index) {
     const score = Math.round((audit.score || 0) * 100);
     const displayValue = audit.displayValue || '';
+    const resourcesCount = audit.details?.items?.length || 0;
+
     const parts = [`Score: ${score}`];
 
     if (displayValue && displayValue !== '0') {
       parts.push(displayValue);
+    }
+
+    if (resourcesCount > 0) {
+      parts.push(`${resourcesCount} 個資源`);
+    }
+
+    const allTags = this.buildAuditTags(audit);
+    if (allTags) {
+      parts.push(allTags);
     }
 
     const cleanTitle = this.stripHtml(audit.title)
@@ -299,18 +441,18 @@ export class ReportFormatter {
     if (itemsArray.length === 0) return '';
 
     const items = itemsArray
-      .map(item => {
+      .map((item) => {
         const info = this.extractInfo(item);
         if (Array.isArray(info)) return info;
         return info ? [info] : [];
       })
       .flat()
-      .filter(info => info?.text?.trim());
+      .filter((info) => info?.text?.trim());
 
     if (items.length === 0) return '';
 
     let md = '\n**問題資源**：\n';
-    items.forEach(info => {
+    items.forEach((info) => {
       md += `- ${info.text}\n`;
       if (info.stats) {
         md += `  ${info.stats}\n`;
@@ -322,7 +464,7 @@ export class ReportFormatter {
 
   extractInfo(item) {
     if (item.type === 'table' && item.items) {
-      return item.items.map(sub => this.extractInfo(sub)).filter(i => i);
+      return item.items.map((sub) => this.extractInfo(sub)).filter((i) => i);
     }
 
     let text = null;
@@ -354,6 +496,201 @@ export class ReportFormatter {
 
   stripHtml(html) {
     if (!html) return '';
-    return html.replace(/<[^>]*>/g, '');
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  }
+
+  // Generic category renderer for SEO/Best Practices/Accessibility
+  renderGenericCategory(categoryKey, category, audits, excludePassed = false) {
+    const labels = {
+      performance: 'Performance',
+      accessibility: 'Accessibility',
+      'best-practices': 'Best Practices',
+      seo: 'SEO'
+    };
+
+    let md = `## ${labels[categoryKey]}\n\n`;
+
+    // 使用共用分類邏輯（傳入 categoryKey 以取得正確排序）
+    const { auditsByGroup, groupOrder, special } = classifyGenericAudits(category, audits, categoryKey);
+
+    // Render each group (only groups with failed audits)
+    groupOrder.forEach((groupKey) => {
+      const groupData = auditsByGroup[groupKey];
+      if (groupData && groupData.nonPassed.length > 0) {
+        const groupTitle = this.formatGroupTitle(groupKey);
+        md += `### 🔸 ${groupTitle} (${groupData.nonPassed.length} 項)\n\n`;
+        md += this.formatFailedAudits(groupData.nonPassed);
+        md += '\n';
+      }
+    });
+
+    // Render special sections (使用 classifier 回傳的 special)
+    if (special.manual.length > 0) {
+      md += `### 🔵 其他手動檢查項目 (ADDITIONAL ITEMS TO MANUALLY CHECK) (${special.manual.length} 項)\n\n`;
+      special.manual.forEach((audit, index) => {
+        const title = this.stripHtml(audit.title)
+          .replace(/\uFFFD/g, '')
+          .replace(/`([^`]+)`/g, '$1');
+        md += `${index + 1}. ${title}\n`;
+      });
+      md += '\n';
+    }
+
+    if (!excludePassed && special.passed.length > 0) {
+      md += `### 🟢 通過稽核項目 (PASSED AUDITS) (${special.passed.length} 項)\n\n`;
+      md += this.formatPassedAudits(special.passed);
+      md += '\n';
+    }
+
+    if (!excludePassed && special.notApplicable.length > 0) {
+      md += '\n'; // 加入空行間隔
+      md += `### ⚪ 不適用 (NOT APPLICABLE) (${special.notApplicable.length} 項)\n\n`;
+      special.notApplicable.forEach((audit, index) => {
+        const title = this.stripHtml(audit.title)
+          .replace(/\uFFFD/g, '')
+          .replace(/`([^`]+)`/g, '$1');
+        md += `${index + 1}. ${title}\n`;
+      });
+      md += '\n';
+    }
+
+    md += '---\n\n';
+    return md;
+  }
+
+  groupAuditsByGroup(auditRefs, audits) {
+    const groups = {};
+
+    auditRefs.forEach((ref) => {
+      const audit = audits[ref.id];
+      if (!audit) return;
+
+      // Skip special types
+      if (
+        audit.scoreDisplayMode === 'manual' ||
+        audit.scoreDisplayMode === 'notApplicable' ||
+        ref.group === 'hidden'
+      ) {
+        return;
+      }
+
+      const group = ref.group || 'no-group';
+      if (!groups[group]) {
+        groups[group] = [];
+      }
+
+      groups[group].push({ ...audit, id: ref.id, weight: ref.weight });
+    });
+
+    return groups;
+  }
+
+  filterFailedAudits(audits, auditsData) {
+    return audits.filter((audit) => {
+      if (audit.scoreDisplayMode === 'informative') {
+        return true; // informative 算失敗
+      }
+      return audit.score !== null && audit.score < 1; // Generic 用 score < 1
+    });
+  }
+
+  formatGroupTitle(groupKey) {
+    const mappings = {
+      'a11y-best-practices': '最佳做法 (BEST PRACTICES)',
+      'a11y-color-contrast': '對比 (CONTRAST)',
+      'a11y-names-labels': '名稱和標籤 (NAMES AND LABELS)',
+      'a11y-navigation': '瀏覽 (NAVIGATION)',
+      'a11y-aria': 'ARIA',
+      'a11y-language': '國際化和本地化 (INTERNATIONALIZATION AND LOCALIZATION)',
+      'a11y-audio-video': '音訊和影片 (AUDIO AND VIDEO)',
+      'a11y-tables-lists': '表格和清單 (TABLES AND LISTS)',
+      'best-practices-trust-safety': '信任與安全性 (TRUST AND SAFETY)',
+      'best-practices-ux': '使用者體驗 (USER EXPERIENCE)',
+      'best-practices-browser-compat': '瀏覽器相容性 (BROWSER COMPATIBILITY)',
+      'best-practices-general': '一般 (GENERAL)',
+      'seo-mobile': '適合透過行動裝置瀏覽 (MOBILE FRIENDLY)',
+      'seo-content': '內容最佳做法 (CONTENT BEST PRACTICES)',
+      'seo-crawl': '檢索及建立索引 (CRAWLING AND INDEXING)'
+    };
+
+    return mappings[groupKey] || groupKey.replace(/-/g, ' ').toUpperCase();
+  }
+
+  renderManualChecks(category, audits) {
+    const manualRefs = category.auditRefs.filter((ref) => {
+      const audit = audits[ref.id];
+      return audit && audit.scoreDisplayMode === 'manual';
+    });
+
+    if (manualRefs.length === 0) return '';
+
+    const manualAudits = manualRefs.map((ref) => ({
+      ...audits[ref.id],
+      id: ref.id
+    }));
+
+    let md = `### 🔵 其他手動檢查項目 (ADDITIONAL ITEMS TO MANUALLY CHECK) (${manualAudits.length} 項)\n\n`;
+    manualAudits.forEach((audit, index) => {
+      const title = this.stripHtml(audit.title)
+        .replace(/\uFFFD/g, '')
+        .replace(/`([^`]+)`/g, '$1');
+      md += `${index + 1}. ${title}\n`;
+    });
+    md += '\n';
+
+    return md;
+  }
+
+  renderPassedAuditsSection(category, audits) {
+    const passedRefs = category.auditRefs.filter((ref) => {
+      const audit = audits[ref.id];
+      return (
+        audit &&
+        audit.score === 1 &&
+        audit.scoreDisplayMode !== 'manual' &&
+        audit.scoreDisplayMode !== 'notApplicable' &&
+        audit.scoreDisplayMode !== 'informative' &&
+        ref.group !== 'hidden'
+      );
+    });
+
+    if (passedRefs.length === 0) return '';
+
+    const passedAudits = passedRefs.map((ref) => ({
+      ...audits[ref.id],
+      id: ref.id
+    }));
+
+    let md = `### 🟢 通過稽核項目 (PASSED AUDITS) (${passedAudits.length} 項)\n\n`;
+    md += this.formatPassedAudits(passedAudits);
+    md += '\n';
+
+    return md;
+  }
+
+  renderNotApplicable(category, audits) {
+    const notApplicableRefs = category.auditRefs.filter((ref) => {
+      const audit = audits[ref.id];
+      return audit && audit.scoreDisplayMode === 'notApplicable';
+    });
+
+    if (notApplicableRefs.length === 0) return '';
+
+    const notApplicableAudits = notApplicableRefs.map((ref) => ({
+      ...audits[ref.id],
+      id: ref.id
+    }));
+
+    let md = `### ⚪ 不適用 (NOT APPLICABLE) (${notApplicableAudits.length} 項)\n\n`;
+    notApplicableAudits.forEach((audit, index) => {
+      const title = this.stripHtml(audit.title)
+        .replace(/\uFFFD/g, '')
+        .replace(/`([^`]+)`/g, '$1');
+      md += `${index + 1}. ${title}\n`;
+    });
+    md += '\n';
+
+    return md;
   }
 }

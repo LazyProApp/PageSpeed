@@ -29,24 +29,29 @@ export class BatchProcessor {
       return;
     }
 
-    if (this.isProcessing) {
-      logger.warn('BatchProcessor already running');
-      return;
-    }
-
     if (urls.length === 1) {
       logger.debug('Single URL analysis, starting immediately');
       this.isProcessing = true;
       this.eventBus.emit(EVENTS.PROCESS.BATCH_STARTED, { total: 1 });
 
       try {
-        await this.analyzeSingle(config, urls[0]);
+        const result = await this.analyzeSingle(config, urls[0]);
+        if (result === 'QUOTA_EXCEEDED') {
+          this.eventBus.emit(EVENTS.PROCESS.BATCH_COMPLETED, {
+            total: 1,
+            completed: 0,
+            failed: 0
+          });
+          return;
+        }
         this.eventBus.emit(EVENTS.PROCESS.BATCH_COMPLETED, {
           total: 1,
           completed: 1,
           failed: 0
         });
       } catch (error) {
+        logger.error('Single URL analysis failed', { error: error.message });
+
         this.eventBus.emit(EVENTS.PROCESS.BATCH_COMPLETED, {
           total: 1,
           completed: 0,
@@ -77,7 +82,7 @@ export class BatchProcessor {
     });
 
     try {
-      const results = await this.processWithConcurrency(
+      await this.processWithConcurrency(
         config,
         (progress) => {
           completed = progress.completed;
@@ -128,7 +133,7 @@ export class BatchProcessor {
   }
 
   async analyzeSingle(config, url) {
-    await this.analyzeURL(url, config);
+    return await this.analyzeURL(url, config);
   }
 
   async processWithConcurrency(config, onProgress) {
@@ -181,12 +186,21 @@ export class BatchProcessor {
         proMode: config.proMode
       });
 
-      const reports = config.proMode
+      const result = config.proMode
         ? await this.analyzeProMode(url, config.apiKey)
         : await this.analyzeTestMode(url);
 
+      const { reportIds, ...reports } = result;
+
+      logger.debug('Analysis result', {
+        hasReportIds: !!reportIds,
+        reportIds,
+        reportKeys: Object.keys(reports)
+      });
+
       this.dataEngine.updateURLStatus(url, 'success', {
-        reports
+        reports,
+        reportIds
       });
 
       logger.debug('All analyses completed', {
@@ -197,6 +211,16 @@ export class BatchProcessor {
         url,
         error: error.message
       });
+
+      if (error.message.includes('今日免費額度已達上限')) {
+        this.dataEngine.updateURLStatus(url, 'pending');
+        this.eventBus.emit(EVENTS.SYSTEM.ALERT_REQUESTED, {
+          title: '分析額度已達上限',
+          message: '今天分析額度已用完，請改用自己的 PageSpeed API Key'
+        });
+        this.stopBatch();
+        return 'QUOTA_EXCEEDED';
+      }
 
       this.dataEngine.updateURLStatus(url, 'failed', {
         error: error.message
@@ -213,7 +237,14 @@ export class BatchProcessor {
 
   async analyzeTestMode(url) {
     const { mobile, desktop } = await this.pageSpeedAPI.analyzeViaWorkers(url);
-    return { mobile, desktop };
+    return {
+      mobile: mobile.report || mobile,
+      desktop: desktop.report || desktop,
+      reportIds: {
+        mobile: mobile.reportId,
+        desktop: desktop.reportId
+      }
+    };
   }
 
   async analyzeProMode(url, apiKey) {
@@ -225,7 +256,18 @@ export class BatchProcessor {
   }
 
   async analyzeStrategy(url, strategy, apiKey) {
-    return await this.pageSpeedAPI.analyzeWithAPI(url, strategy, apiKey);
+    const report = await this.pageSpeedAPI.analyzeWithAPI(url, strategy, apiKey);
+
+    if (report?.lighthouseResult?.categories?.performance) {
+      const perfCategory = report.lighthouseResult.categories.performance;
+      perfCategory.auditRefs.forEach(ref => {
+        if (ref.id.endsWith('-insight') && ref.group === 'hidden') {
+          ref.group = 'insights';
+        }
+      });
+    }
+
+    return report;
   }
 
 
@@ -240,16 +282,5 @@ export class BatchProcessor {
     logger.debug('Batch analysis paused', {
       hasProcessingURL: this.hasProcessingURL
     });
-  }
-
-  // 保留供未來 UI 中止功能使用
-  abort() {
-    if (!this.isProcessing) {
-      logger.warn('No batch processing to abort');
-      return;
-    }
-
-    logger.debug('Aborting batch analysis');
-    this.abortController.abort();
   }
 }

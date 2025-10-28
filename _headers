@@ -24,7 +24,7 @@
   # Content Security Policy
   # 注意：因使用 Tailwind CDN 和 Material Web Components，需要 'unsafe-inline'
   # 理想情況下應該使用 npm 安裝並自行託管，或使用 nonce/hash
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.run; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.googleapis.com https://lazy-pagespeed-api.blackflash.workers.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://esm.run; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.googleapis.com https://lazy-pagespeed-api.blackflash.workers.dev https://*.r2.cloudflarestorage.com https://*.r2.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
 # 快取控制（靜態資源）
 /assets/*
