@@ -36,7 +36,7 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 
 ## 關於
 
-**線上使用**：https://pagespeed.lazypro.app
+**網址**：https://pagespeed.lazypro.app
 
 **使用文件**：https://docs.lazypro.app/content/pagespeed/00-overview.md
 
