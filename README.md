@@ -45,18 +45,7 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 - 報告分享功能使用你自己的 Cloudflare R2（選用）
 - 不記錄、不儲存任何分析資料
 
-## 使用文件
-
-完整的功能說明、JSON 格式、API Key 申請方式，都在文件裡：
-
-📖 **[使用文件](https://docs.lazypro.app/content/pagespeed/00-overview.md)**
-
-文件包含：
-- 快速開始指南
-- Pro 模式設定（API Key 申請）
-- R2 設定教學（報告分享功能）
-- JSON 檔案格式說明
-- 各功能按鈕詳解
+**[使用文件](https://docs.lazypro.app/content/pagespeed/00-overview.md)**
 
 ## 授權
 
