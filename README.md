@@ -17,7 +17,7 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 
 ## 分析流程說明
 
-**PSI 分析流程**：
+**傳統 PageSpeed Insights 分析流程**：
 ```
 網址 → PageSpeed Insights 網頁 → 看結果 → 截圖/手動複製 → 難給 AI 分析
        (每次一個)                   (無法下載)      (片段資訊)
@@ -30,7 +30,7 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
                                                     ↓
                                         ┌───────────┴───────────┐
                                         ↓                       ↓
-                                  逐一給 AI               資料夾 + 提示
+                                  逐一給 AI               資料彙整 + Prompt
                                    單頁分析                  系統性總結
 ```
 
@@ -57,31 +57,6 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 - R2 設定教學（報告分享功能）
 - JSON 檔案格式說明
 - 各功能按鈕詳解
-
-## 技術架構
-
-- **前端**：原生 JavaScript (ES6 模組)，無框架依賴
-- **UI**：Material Design 3 (Material Web Components)
-- **API**：Cloudflare Workers（免費版轉發 + 分享功能）
-- **儲存**：Cloudflare R2（報告分享）、KV（短網址）
-- **分析**：Google PageSpeed Insights API
-
-## 開發指南
-
-### 專案結構
-
-```
-lazy-pagespeed/
-├── index.html              # 主頁面
-├── assets/                 # 靜態資源
-├── js/                     # JavaScript 模組
-│   ├── main.js            # 程式進入點
-│   ├── core/              # 核心業務邏輯
-│   ├── ui/                # UI 層
-│   ├── modules/           # 外部模組封裝
-│   └── utils/             # 工具函數
-└── docs/                  # GitBook 文件
-```
 
 ## 授權
 
