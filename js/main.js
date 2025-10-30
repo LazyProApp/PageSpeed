@@ -222,7 +222,10 @@ class App {
   _loadShareReportIds(shareData) {
     const reportIds = {};
 
-    for (const [url, reportData] of Object.entries(shareData.reports || {})) {
+    for (const url of shareData.urls) {
+      const reportData = shareData.reports[url];
+      if (!reportData) continue;
+
       if (reportData.type === 'presigned_url') {
         reportIds[url] = { type: 'url', value: reportData.url };
       } else if (reportData.type === 'embedded') {
