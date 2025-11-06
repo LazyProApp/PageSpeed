@@ -41,7 +41,8 @@ export class DataEngine {
         desktop: null
       },
       error: null,
-      addedAt: new Date().toISOString()
+      addedAt: new Date().toISOString(),
+      completedAt: null
     });
 
     logger.debug('URL added', url);
@@ -112,6 +113,7 @@ export class DataEngine {
     if (data.clearReports) {
       page.reports = { mobile: null, desktop: null };
       page.error = null;
+      page.completedAt = null;
     }
 
     if (data.strategy && data.report) {
@@ -145,11 +147,25 @@ export class DataEngine {
         status: 'processing'
       });
     } else if (status === 'success') {
+      page.completedAt = new Date()
+        .toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        })
+        .replace(/\//g, '-')
+        .replace(',', '');
+
       this.eventBus.emit(EVENTS.DOMAIN.ANALYSIS_COMPLETED, {
         url,
         status,
         reports: page.reports,
-        reportIds: page.reportIds
+        reportIds: page.reportIds,
+        completedAt: page.completedAt
       });
     } else if (status === 'failed') {
       this.eventBus.emit(EVENTS.DOMAIN.ANALYSIS_FAILED, {

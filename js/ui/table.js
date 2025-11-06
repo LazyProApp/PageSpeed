@@ -65,7 +65,8 @@ export class Table {
     this.eventBus.on(EVENTS.DOMAIN.ANALYSIS_COMPLETED, (data) => {
       this.updateRowStatus(data.url, 'success', {
         scores: data.scores,
-        reports: data.reports
+        reports: data.reports,
+        completedAt: data.completedAt
       });
     });
 
@@ -113,8 +114,11 @@ export class Table {
     row.innerHTML = `
       <td class="status-cell py-4 px-6 text-center">${this.getStatusIcon(status)}</td>
       <td class="url-cell py-4 px-6">
-        <div class="url-scroll-container">
-          <div class="url-text">${this.escapeHtml(url)}</div>
+        <div style="position: relative;">
+          <div class="url-scroll-container">
+            <div class="url-text">${this.escapeHtml(url)}</div>
+          </div>
+          <div class="completed-time-overlay" style="display: none;"></div>
         </div>
         <div class="relative" style="margin-top: 4px;">
           <div class="fade-text flex space-x-3">
@@ -165,10 +169,14 @@ export class Table {
 
     if (status === 'success' && data.reports) {
       this.showScores(fadeText, errorMessage, data.reports);
+      if (data.completedAt) {
+        this.showCompletedTime(row, data.completedAt);
+      }
     } else if (status === 'failed' && data.error) {
       this.showError(fadeText, errorMessage, data.error);
     } else {
       this.clearContent(fadeText, errorMessage);
+      this.hideCompletedTime(row);
     }
   }
 
@@ -197,6 +205,23 @@ export class Table {
       errorMessage.classList.add('hidden');
       errorMessage.textContent = '';
     }
+  }
+
+  showCompletedTime(row, completedAt) {
+    const timeOverlay = row.querySelector('.completed-time-overlay');
+    if (!timeOverlay) return;
+
+    // prettier-ignore - completedAt is formatted by data-engine, icon is static HTML
+    timeOverlay.innerHTML = `<span class="material-symbols-outlined">schedule</span>${this.escapeHtml(completedAt)}`;
+    timeOverlay.style.display = 'flex';
+  }
+
+  hideCompletedTime(row) {
+    const timeOverlay = row.querySelector('.completed-time-overlay');
+    if (!timeOverlay) return;
+
+    timeOverlay.style.display = 'none';
+    timeOverlay.innerHTML = '';
   }
 
   updateActionButtons(row, status) {
@@ -249,7 +274,8 @@ export class Table {
       this.addRow(page.url, page.status);
       if (page.status === 'success' && page.reports) {
         this.updateRowStatus(page.url, 'success', {
-          reports: page.reports
+          reports: page.reports,
+          completedAt: page.completedAt
         });
       }
     });
@@ -448,8 +474,10 @@ export class Table {
   extractScores(reports, key) {
     const categoryKey = key === 'bestPractices' ? 'best-practices' : key;
 
-    const mobileScore = reports?.mobile?.lighthouseResult?.categories?.[categoryKey]?.score;
-    const desktopScore = reports?.desktop?.lighthouseResult?.categories?.[categoryKey]?.score;
+    const mobileScore =
+      reports?.mobile?.lighthouseResult?.categories?.[categoryKey]?.score;
+    const desktopScore =
+      reports?.desktop?.lighthouseResult?.categories?.[categoryKey]?.score;
 
     return {
       mobile: this.formatScore(mobileScore),
@@ -529,7 +557,8 @@ export class Table {
     if (score === '-' || score === null || score === undefined) {
       return 'rgb(144, 144, 144)';
     }
-    const numericScore = typeof score === 'number' ? score : parseInt(score, 10);
+    const numericScore =
+      typeof score === 'number' ? score : parseInt(score, 10);
     if (numericScore >= 90) return 'rgb(74, 222, 128)';
     if (numericScore >= 50) return 'rgb(251, 146, 60)';
     return 'rgb(248, 113, 113)';
