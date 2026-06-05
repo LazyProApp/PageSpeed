@@ -13,7 +13,7 @@
 - [x] 確認 GitHub repository visibility 為 public。
 - [x] 確認 GitHub 個人或組織 profile 為 public。
 - [x] 確認要公開的測試、Worker、demo 檔案是否要納入 repo：`workers/` 是 hosted demo infrastructure，不公開；`demo/`、`tst/` 先保留本機整理。
-- [ ] 建立 release/tag 或補一段維護紀錄，讓 active maintenance 更明確。
+- [x] 建立 release/tag 或補一段維護紀錄，讓 active maintenance 更明確：`v0.1.0`。
 
 ## 建議
 
@@ -25,4 +25,4 @@
 
 ## 目前阻塞
 
-沒有授權、GitHub 可見性或 Worker 公開範圍阻塞。送出前只剩建立 release/tag 或補維護紀錄，另可再整理可重現測試指令。
+沒有授權、GitHub 可見性、Worker 公開範圍或 release/tag 阻塞。送出前可再整理可重現測試指令與 GitHub issue 標籤。
