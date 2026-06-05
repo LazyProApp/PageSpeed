@@ -15,6 +15,12 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 - **報告分享**: 產生分享連結讓團隊協作
 - **零信任架構**: API Key 和報告資料都在你自己掌控中
 
+## 為什麼需要這個專案
+
+PageSpeed Insights 適合單頁檢查，但實際維護網站時，通常需要比較多個頁面、保留原始 Lighthouse 資料，並把大量診斷結果整理成可執行的改善清單。Lazy PageSpeed 把這些重複工作變成可批次處理、可下載、可交給 AI 分析的流程，讓開發者、SEO 顧問、內容團隊與網站維護者能更快取得完整報告。
+
+這個專案的維護重點包含 PageSpeed API / Lighthouse 報告格式變動、Markdown 匯出品質、瀏覽器相容性、CSP、分享連結與 Cloudflare R2 流程。
+
 ## 分析流程說明
 
 **傳統 PageSpeed Insights 分析流程**：
@@ -39,6 +45,12 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 **網址**：https://pagespeed.lazypro.app
 
 **使用文件**：https://docs.lazypro.app/content/pagespeed/00-overview.md
+
+## 隱私與架構
+
+Lazy PageSpeed 預設以純前端流程為主。免費版會透過 Cloudflare Workers 轉發少量 PageSpeed API 請求；Pro 模式則由使用者的瀏覽器直接使用自己的 API Key 呼叫 PageSpeed API。報告分享功能為選用，設計上可接入使用者自己的 Cloudflare R2。
+
+專案目標是讓 API Key 與報告資料盡量留在使用者掌控範圍內，避免把網站分析資料集中儲存在第三方服務。
 
 **隱私說明**：
 - 免費版（3 個網址）使用 Cloudflare Workers 轉發 API 請求
