@@ -1,10 +1,10 @@
 # License Decision
 
-## Current state
+## Decision
 
-Lazy PageSpeed currently uses a restricted personal/internal-use license. It allows personal or internal company use, modification for internal needs, and learning or research. It prohibits external service integration, SaaS usage, redistribution, and commercial use.
+Lazy PageSpeed is licensed under GNU Affero General Public License v3.0 (AGPL-3.0).
 
-That restriction is incompatible with the usual meaning of open source. If the project is submitted to Codex for Open Source as-is, the license is likely to be the main rejection risk.
+The previous restricted personal/internal-use license has been replaced. The project now uses a real open source license and is a better fit for Codex for Open Source submission.
 
 ## Practical impact of changing license
 
@@ -17,7 +17,7 @@ Changing to a real open source license means downstream users can generally:
 
 This cannot be solved by calling the license "open source" while keeping a ban on SaaS, commercial use, or redistribution.
 
-## Recommended options
+## Considered options
 
 ### Apache-2.0
 
@@ -31,8 +31,8 @@ Shortest and simplest permissive option. It is easy for users to understand, but
 
 Best if the goal is open source while discouraging closed hosted forks. It allows commercial use, but if someone modifies and runs the software as a network service, they must provide the corresponding source under AGPL terms.
 
-## Recommendation
+## Rationale
 
-Use AGPL-3.0 if the hosted-service risk is the main concern. Use Apache-2.0 if adoption and contribution friction matter more than preventing closed hosted forks.
+AGPL-3.0 was selected because hosted-service risk is the main concern. It allows commercial use, modification, redistribution, and private use, but requires modified versions used over a network to make corresponding source code available under AGPL terms.
 
-Do not use a custom non-commercial license if the goal is to apply as an open-source maintainer.
+This is more aligned with open source than a custom non-commercial license while still discouraging closed hosted forks.

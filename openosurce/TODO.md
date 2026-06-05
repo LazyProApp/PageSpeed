@@ -7,9 +7,9 @@
 - [x] 補 root `CONTRIBUTING.md`。
 - [x] 補 root `SECURITY.md`。
 - [x] 建立 Codex for Open Source 申請草稿。
-- [ ] 決定正式 open source license。
-- [ ] 依授權決策更新 root `LICENSE`。
-- [ ] 依授權決策更新 root `README.md` 授權段落。
+- [x] 決定正式 open source license：AGPL-3.0。
+- [x] 依授權決策更新 root `LICENSE`。
+- [x] 依授權決策更新 root `README.md` 授權段落。
 - [ ] 確認 GitHub repository visibility 為 public。
 - [ ] 確認 GitHub 個人或組織 profile 為 public。
 - [ ] 確認要公開的測試、Worker、demo 檔案是否要納入 repo。
@@ -25,4 +25,4 @@
 
 ## 目前阻塞
 
-LICENSE 是產品與法律決策。若要符合 Codex for Open Source 的定位，必須選擇真正 open source license；若仍要禁止 SaaS、商業服務整合或再分發，就不建議送這個 repo。
+沒有授權阻塞。送出前仍需確認 GitHub repository / profile 可見性，以及是否要把測試、Worker、demo 檔案整理後公開。

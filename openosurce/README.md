@@ -6,7 +6,7 @@
 
 Lazy PageSpeed 有明確的開源申請價值：它把 Google PageSpeed Insights API 的單頁分析流程，整理成可批次處理、可下載、可交給 AI 做後續分析的工作流。這類維護會長期受到 PageSpeed API、Lighthouse 報告格式、瀏覽器安全政策、Cloudflare Workers / R2 行為與前端 UI 需求影響，適合用 Codex 協助維護。
 
-目前最大阻礙是 LICENSE 還不是一般認定的 open source license。送出申請前，需要先決定是否移除「禁止商業利用、禁止服務整合、禁止再分發」這類限制，並改用 OSI 常見授權。
+專案已改用 GNU Affero General Public License v3.0 (AGPL-3.0)。這讓 Lazy PageSpeed 成為真正 open source 專案，同時要求修改版若作為網路服務提供，必須依 AGPL-3.0 提供對應原始碼。
 
 ## 申請主軸
 

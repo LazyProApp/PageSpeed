@@ -49,17 +49,9 @@ Lazy PageSpeed 是 Google PageSpeed Insights API 的增強工具，僅花費極�
 
 ## 授權
 
-**個人使用授權** - 允許個人/公司內部使用，禁止整合至對外服務
+Lazy PageSpeed 採用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 授權。
 
-### 允許
-- 個人或公司內部自行使用
-- 修改以符合內部需求
-- 學習研究用途
-
-### 禁止
-- 整合到對外提供的服務（免費或付費）
-- 作為 SaaS 平台的一部分
-- 再分發為商業產品
+你可以使用、修改與散布本專案；若你修改本專案並透過網路服務提供給使用者，需依 AGPL-3.0 提供對應原始碼。
 
 詳細條款請見 [LICENSE](LICENSE)
 

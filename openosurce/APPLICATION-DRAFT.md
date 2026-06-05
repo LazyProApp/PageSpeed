@@ -39,4 +39,4 @@ Codex would be used to:
 
 ## Notes before submission
 
-This draft assumes the repository will be moved to a real open source license before submission. The current restricted personal-use license should be replaced or the application should not be submitted as an open-source project.
+The repository is licensed under GNU Affero General Public License v3.0 (AGPL-3.0). Before submission, confirm the GitHub repository and maintainer profile are public, and decide whether test, Worker, and demo files should be cleaned up and committed.
