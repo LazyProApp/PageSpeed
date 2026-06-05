@@ -12,7 +12,7 @@
 - [x] 依授權決策更新 root `README.md` 授權段落。
 - [x] 確認 GitHub repository visibility 為 public。
 - [x] 確認 GitHub 個人或組織 profile 為 public。
-- [ ] 確認要公開的測試、Worker、demo 檔案是否要納入 repo。
+- [x] 確認要公開的測試、Worker、demo 檔案是否要納入 repo：`workers/` 是 hosted demo infrastructure，不公開；`demo/`、`tst/` 先保留本機整理。
 - [ ] 建立 release/tag 或補一段維護紀錄，讓 active maintenance 更明確。
 
 ## 建議
@@ -20,9 +20,9 @@
 - [x] 在 README 補「Why this project matters」段落。
 - [x] 在 README 補「Privacy model」與「Architecture」簡述，讓審查者快速看懂零信任設計。
 - [ ] 把測試指令整理成可重現流程。
-- [ ] 若保留 hosted service，補清楚 hosted service 與 open source repo 的界線。
+- [x] 若保留 hosted service，補清楚 hosted service 與 open source repo 的界線。
 - [ ] 開 GitHub Issues 標籤：`bug`、`enhancement`、`help wanted`、`good first issue`。
 
 ## 目前阻塞
 
-沒有授權與 GitHub 可見性阻塞。送出前仍需確認是否要把測試、Worker、demo 檔案整理後公開。
+沒有授權、GitHub 可見性或 Worker 公開範圍阻塞。送出前只剩建立 release/tag 或補維護紀錄，另可再整理可重現測試指令。

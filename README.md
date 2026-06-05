@@ -50,6 +50,8 @@ PageSpeed Insights 適合單頁檢查，但實際維護網站時，通常需要�
 
 Lazy PageSpeed 預設以純前端流程為主。免費版會透過 Cloudflare Workers 轉發少量 PageSpeed API 請求；Pro 模式則由使用者的瀏覽器直接使用自己的 API Key 呼叫 PageSpeed API。報告分享功能為選用，設計上可接入使用者自己的 Cloudflare R2。
 
+本 repository 開源的是可自行 fork / self-host 的前端工具。線上 demo 可能使用 Cloudflare Workers 提供免費模式與部署輔助，但這些 Worker 屬於 demo infrastructure，不是本地執行或自架 Lazy PageSpeed 的必要元件。
+
 專案目標是讓 API Key 與報告資料盡量留在使用者掌控範圍內，避免把網站分析資料集中儲存在第三方服務。
 
 **隱私說明**：

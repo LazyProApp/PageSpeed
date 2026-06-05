@@ -1,0 +1,13 @@
+.DS_Store
+
+# Local editor and formatting overrides
+.prettierrc
+
+# Local Cloudflare state and hosted-demo infrastructure
+.wrangler/
+workers/
+
+# Local experiments and debug outputs
+demo/
+tst/
+sonar-project.properties
